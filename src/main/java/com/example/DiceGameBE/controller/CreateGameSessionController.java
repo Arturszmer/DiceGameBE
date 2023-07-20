@@ -14,11 +14,6 @@ public class CreateGameSessionController {
         this.gameCreatorService = gameCreatorService;
     }
 
-    @GetMapping("/")
-    public String sayHello(){
-        return "Hello";
-    }
-
     @PostMapping("/start-game")
     public ResponseEntity<Game> startGame(@RequestBody CreatePlayerDto playerName){
         Game game = gameCreatorService.createGame(playerName);
