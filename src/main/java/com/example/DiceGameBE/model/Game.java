@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class Game {
+public class Game implements Serializable {
 
     private String gameId;
     private GameStatus gameStatus;

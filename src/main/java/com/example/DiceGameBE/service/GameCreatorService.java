@@ -9,4 +9,5 @@ public interface GameCreatorService {
 
     Game createGame(PlayerDto playerDto);
 
+    Game findGame(String gameId);
 }
