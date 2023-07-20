@@ -1,37 +1,25 @@
 package com.example.DiceGameBE.model;
 
-import com.example.DiceGameBE.dto.PlayerDto;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
+
 @Data
 @Getter
 @Setter
-public class Player {
+@NoArgsConstructor
+public class Player implements Serializable {
     private Integer id;
     private String name;
     private Integer points;
     private Validations validations;
 
-    public Player(Integer id, String name, Integer points, boolean turn) {
+    public Player(Integer id, String name) {
         this.id = id;
         this.name = name;
-        this.points = points;
-        this.validations = new Validations(false, turn, false, false);
-    }
-
-    public static List<Player> createPlayers(List<PlayerDto> playersDto) {
-        List<Player> players = new ArrayList<>();
-        playersDto.forEach(p -> invokePlayers(players, p));
-        return players;
-    }
-
-    private static void invokePlayers(List<Player> players, PlayerDto p) {
-        if(p.getId() == 0){
-            players.add(new Player(0, p.getUsername(), p.getPoints(), true));
-        } else {
-            players.add(new Player(p.getId(), p.getUsername(), p.getPoints(), false));
-        }
+        this.points = 0;
+        this.validations = new Validations(
+                false,
+                id == 0, false, false);
     }
 }

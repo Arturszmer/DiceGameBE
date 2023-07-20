@@ -12,6 +12,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class Game implements Serializable {
 
     private String gameId;

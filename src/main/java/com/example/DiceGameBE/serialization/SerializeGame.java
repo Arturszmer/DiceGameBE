@@ -8,6 +8,8 @@ import org.json.JSONObject;
 
 public class SerializeGame {
 
+    //TODO: probably it wont be needed - to remove
+
     public static String serializeGameToJson(Game game) {
         JSONObject gameObject = new JSONObject();
         gameObject.put("gameId", game.getGameId());
