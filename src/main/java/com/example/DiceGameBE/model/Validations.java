@@ -1,14 +1,12 @@
 package com.example.DiceGameBE.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.io.Serializable;
 
-@Getter
-@Setter
+@Data
+@RedisHash
 @NoArgsConstructor
 @AllArgsConstructor
 public class Validations implements Serializable {

@@ -1,12 +1,12 @@
 package com.example.DiceGameBE.model;
 
 import lombok.*;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.io.Serializable;
 
 @Data
-@Getter
-@Setter
+@RedisHash
 @NoArgsConstructor
 public class Player implements Serializable {
     private Integer id;
