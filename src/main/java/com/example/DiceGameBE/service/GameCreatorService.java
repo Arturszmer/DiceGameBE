@@ -11,9 +11,5 @@ public interface GameCreatorService {
 
     Game createGame(CreatePlayerDto createPlayerDto);
 
-    Game findGameByGameId(String gameId);
-
-    List<Game> findOpenGames(GameStatus status);
-
     String deleteAllGames();
 }

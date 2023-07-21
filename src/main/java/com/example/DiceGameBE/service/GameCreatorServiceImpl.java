@@ -28,16 +28,6 @@ public class GameCreatorServiceImpl implements GameCreatorService{
     }
 
     @Override
-    public Game findGameByGameId(String gameId) {
-        return gameRepository.findById(gameId).orElse(null);
-    }
-
-    @Override
-    public List<Game> findOpenGames(GameStatus status) {
-        return gameRepository.findGamesByGameStatus(status);
-    }
-
-    @Override
     public String deleteAllGames() {
         gameRepository.deleteAll();
         return "All games are removed";
