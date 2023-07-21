@@ -1,9 +1,11 @@
 package com.example.DiceGameBE.service;
 
+import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.repository.GameRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.example.DiceGameBE.service.models.buildSimpleGame;
 import static com.example.DiceGameBE.service.models.createSimplePlayerDto;
 import static org.mockito.Mockito.mock;
 
@@ -19,8 +21,14 @@ public class GamePlayersProviderTest {
 
     @Test
     void should_add_players_to_open_game() {
+        //given
+        Game game = buildSimpleGame();
 
-        playersProvider.addPlayerToOpenGame(createSimplePlayerDto(1, "user"));
+        //when
+        playersProvider.addPlayerToOpenGame(createSimplePlayerDto(1, "user"), game.getGameId());
+
+        //then
+
     }
 
 

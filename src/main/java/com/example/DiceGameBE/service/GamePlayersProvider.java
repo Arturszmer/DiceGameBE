@@ -4,5 +4,5 @@ import com.example.DiceGameBE.dto.CreatePlayerDto;
 
 public interface GamePlayersProvider {
 
-    void addPlayerToOpenGame(CreatePlayerDto playerDto);
+    boolean addPlayerToOpenGame(CreatePlayerDto playerDto, String gameId);
 }
