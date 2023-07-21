@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.example.DiceGameBE.service.models.createAdminPlayer;
+import static com.example.DiceGameBE.service.models.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -22,8 +22,6 @@ class GameCreatorServiceImplTest {
 
     private GameCreatorService gameCreatorService;
     GameRepository gameRepository = mock(GameRepository.class);
-    private static final String GAME_ID = UUID.randomUUID()
-            .toString().replace("-", "");
 
     @BeforeEach
     void setup(){
@@ -33,15 +31,9 @@ class GameCreatorServiceImplTest {
     @Test
     public void should_create_game() {
         // given
-        CreatePlayerDto adminPlayer = createAdminPlayer();
-        Player franek = new Player(0, "Franek");
+        CreatePlayerDto adminPlayer = createAdminPlayerDto();
+        Game game = buildSimpleGame();
 
-        Game game = GameBuilder.aGameBuilder()
-                .withGameId(GAME_ID)
-                .withGameStatus(GameStatus.OPEN)
-                .withAdminPlayer(franek)
-                .withPlayers(List.of(franek))
-                .build();
         // when
         when(gameRepository.save(any())).thenReturn(game);
         when(gameRepository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
