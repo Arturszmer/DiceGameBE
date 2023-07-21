@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 import static com.example.DiceGameBE.service.models.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,8 +34,22 @@ public class GamePlayersProviderTest {
 
         //then
         assertTrue(isAdded);
-
     }
+
+    @Test
+    public void should_not_add_player_with_same_id_or_name() {
+        // given
+        Game game = buildSimpleGame();
+        game.getPlayers().add(createSimplePlayer(1, "user"));
+
+        // when
+        when(repository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
+
+        // then
+        assertThrows(RuntimeException.class,
+                () -> playersProvider.addPlayerToOpenGame(createSimplePlayerDto(1, "user2"), GAME_ID));
+    }
+
 
 
 }
