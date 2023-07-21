@@ -1,11 +1,17 @@
 package com.example.DiceGameBE.service;
 
+import com.example.DiceGameBE.dto.CreatePlayerDto;
 import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.repository.GameRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.example.DiceGameBE.service.models.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,20 +42,26 @@ public class GamePlayersProviderTest {
         assertTrue(isAdded);
     }
 
-    @Test
-    public void should_not_add_player_with_same_id_or_name() {
+    @ParameterizedTest
+    @MethodSource("checkExceptionsForAddPlayerMethod")
+    public void should_check_all_validators_in_add_player_method(Game game, CreatePlayerDto player, Class<Exception> exception, GameStatus gameStatus) {
         // given
-        Game game = buildSimpleGame();
-        game.getPlayers().add(createSimplePlayer(1, "user"));
+        game.setGameStatus(gameStatus);
 
         // when
         when(repository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
 
         // then
-        assertThrows(RuntimeException.class,
-                () -> playersProvider.addPlayerToOpenGame(createSimplePlayerDto(1, "user2"), GAME_ID));
+        assertThrows(exception,
+                () -> playersProvider.addPlayerToOpenGame(player, GAME_ID));
     }
 
-
-
+    private static Stream<Arguments> checkExceptionsForAddPlayerMethod(){
+        return Stream.of(
+                Arguments.of(buildSimpleGame(3), createSimplePlayerDto(4, "user4"), ArrayStoreException.class, GameStatus.OPEN),
+                Arguments.of(buildSimpleGame(), createSimplePlayerDto(1, "user1"), IllegalStateException.class, GameStatus.FINISHED),
+                Arguments.of(buildSimpleGame(1), createSimplePlayerDto(1, "userUnique"), RuntimeException.class, GameStatus.OPEN),
+                Arguments.of(buildSimpleGame(1), createSimplePlayerDto(2, "user1"), RuntimeException.class, GameStatus.OPEN)
+                );
+    }
 }

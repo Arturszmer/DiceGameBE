@@ -35,5 +35,17 @@ public class models {
                 .withPlayers(List.of(createAdminPlayer()))
                 .build();
     }
+    static Game buildSimpleGame(int numberOfPlayers){
+        Game game = GameBuilder.aGameBuilder()
+                .withGameId(GAME_ID)
+                .withGameStatus(GameStatus.OPEN)
+                .withAdminPlayer(createAdminPlayer())
+                .withPlayers(List.of(createAdminPlayer()))
+                .build();
+        for(int i = 1; i <= numberOfPlayers; i++){
+            game.getPlayers().add(new Player(i, "user" + i));
+        }
+        return game;
+    }
 
 }
