@@ -4,7 +4,6 @@ import com.example.DiceGameBE.dto.CreatePlayerDto;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.repository.GameRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,6 +21,7 @@ public class GamePlayersProviderImpl implements GamePlayersProvider {
         Optional<Game> game = gameRepository.findById(gameId);
         if(game.isPresent()){
             game.get().addPlayer(toEntity(playerDto));
+//            gameRepository.save(game.get());
             return true;
         } else {
             return false;

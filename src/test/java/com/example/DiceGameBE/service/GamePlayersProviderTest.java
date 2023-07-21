@@ -5,9 +5,12 @@ import com.example.DiceGameBE.repository.GameRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.example.DiceGameBE.service.models.buildSimpleGame;
-import static com.example.DiceGameBE.service.models.createSimplePlayerDto;
+import java.util.Optional;
+
+import static com.example.DiceGameBE.service.models.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class GamePlayersProviderTest {
 
@@ -25,9 +28,12 @@ public class GamePlayersProviderTest {
         Game game = buildSimpleGame();
 
         //when
-        playersProvider.addPlayerToOpenGame(createSimplePlayerDto(1, "user"), game.getGameId());
+        when(repository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
+
+        boolean isAdded = playersProvider.addPlayerToOpenGame(createSimplePlayerDto(1, "user"), GAME_ID);
 
         //then
+        assertTrue(isAdded);
 
     }
 

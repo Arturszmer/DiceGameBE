@@ -15,7 +15,6 @@ import java.util.UUID;
 @RedisHash
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
-@AllArgsConstructor
 public class Game implements Serializable {
 
 //    @EqualsAndHashCode.Include
@@ -34,7 +33,7 @@ public class Game implements Serializable {
         System.out.println(gameId);
         this.gameStatus = GameStatus.OPEN;
         this.adminPlayer = adminPlayer;
-        players.add(adminPlayer);
+        getPlayers().add(adminPlayer);
         this.currentTurn = 0;
         this.startGameTime = LocalDateTime.now();
     }
@@ -46,6 +45,6 @@ public class Game implements Serializable {
         if(gameStatus == GameStatus.FINISHED){
             throw new IllegalStateException("you cannot add players because game is finished");
         }
-        players.add(player);
+        getPlayers().add(player);
     }
 }
