@@ -1,7 +1,5 @@
-com/example/DiceGameBE/configurations/SessionStrategy.class
 com/example/DiceGameBE/repository/GameDao.class
 com/example/DiceGameBE/dto/CreatePlayerDto.class
-com/example/DiceGameBE/configurations/RedisConfig.class
 com/example/DiceGameBE/service/GameCreatorService.class
 com/example/DiceGameBE/model/GameStatus.class
 com/example/DiceGameBE/model/Player.class

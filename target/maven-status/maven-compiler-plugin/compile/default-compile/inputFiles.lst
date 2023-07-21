@@ -1,4 +1,3 @@
-/Users/artmusicrecords/IdeaProjects/DiceGameBE/src/main/java/com/example/DiceGameBE/configurations/RedisConfig.java
 /Users/artmusicrecords/IdeaProjects/DiceGameBE/src/main/java/com/example/DiceGameBE/model/Player.java
 /Users/artmusicrecords/IdeaProjects/DiceGameBE/src/main/java/com/example/DiceGameBE/service/GameCreatorService.java
 /Users/artmusicrecords/IdeaProjects/DiceGameBE/src/main/java/com/example/DiceGameBE/repository/GameDao.java
@@ -13,4 +12,3 @@
 /Users/artmusicrecords/IdeaProjects/DiceGameBE/src/main/java/com/example/DiceGameBE/dto/CreatePlayerDto.java
 /Users/artmusicrecords/IdeaProjects/DiceGameBE/src/main/java/com/example/DiceGameBE/repository/GameDaoImpl.java
 /Users/artmusicrecords/IdeaProjects/DiceGameBE/src/main/java/com/example/DiceGameBE/serialization/SerializeGame.java
-/Users/artmusicrecords/IdeaProjects/DiceGameBE/src/main/java/com/example/DiceGameBE/configurations/SessionStrategy.java
