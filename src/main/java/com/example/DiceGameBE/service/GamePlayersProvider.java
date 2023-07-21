@@ -1,4 +1,8 @@
 package com.example.DiceGameBE.service;
 
-public class GamePlayersProvider {
+import com.example.DiceGameBE.dto.CreatePlayerDto;
+
+public interface GamePlayersProvider {
+
+    void addPlayerToOpenGame(CreatePlayerDto playerDto);
 }

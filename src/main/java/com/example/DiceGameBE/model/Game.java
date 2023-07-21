@@ -40,6 +40,9 @@ public class Game implements Serializable {
     }
 
     public void addPlayer(Player player){
+        if(players.size() >= 4){
+            throw new ArrayStoreException("The maximum number of players in one game is 4");
+        }
         players.add(player);
     }
 }

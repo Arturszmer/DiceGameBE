@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.example.DiceGameBE.service.models.createAdminPlayer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -51,10 +52,6 @@ class GameCreatorServiceImplTest {
         assertEquals(GAME_ID, savedGame.getGameId());
         assertEquals(GameStatus.OPEN, savedGame.getGameStatus());
         assertEquals(1, savedGame.getPlayers().size());
-    }
-
-    private CreatePlayerDto createAdminPlayer() {
-        return new CreatePlayerDto(0, "Franek");
     }
 
 }
