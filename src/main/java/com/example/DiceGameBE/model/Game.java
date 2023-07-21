@@ -1,9 +1,9 @@
 package com.example.DiceGameBE.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.index.Indexed;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -11,13 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
+@RedisHash
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Game implements Serializable {
 
+//    @EqualsAndHashCode.Include
+    @Id
     private String gameId;
+    @EqualsAndHashCode.Include
+    @Indexed
     private GameStatus gameStatus;
     private List<Player> players = new ArrayList<>();
     private Player adminPlayer;
@@ -32,5 +37,9 @@ public class Game implements Serializable {
         players.add(adminPlayer);
         this.currentTurn = 0;
         this.startGameTime = LocalDateTime.now();
+    }
+
+    public void addPlayer(Player player){
+        players.add(player);
     }
 }

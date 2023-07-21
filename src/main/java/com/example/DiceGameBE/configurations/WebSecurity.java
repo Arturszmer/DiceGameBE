@@ -21,6 +21,6 @@ public class WebSecurity {
 
     @Bean
     WebSecurityCustomizer webSecurityCustomizer(){
-        return (web -> web.ignoring().requestMatchers("/start-game"));
+        return (web -> web.ignoring().requestMatchers("/start-game", "/start-game-crud", "/delete-all-games"));
     }
 }

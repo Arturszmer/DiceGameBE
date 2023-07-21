@@ -4,16 +4,15 @@ import com.example.DiceGameBE.dto.CreatePlayerDto;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.model.Player;
-import com.example.DiceGameBE.repository.GameDao;
-import com.example.DiceGameBE.repository.GameDaoImpl;
+import com.example.DiceGameBE.repository.GameRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -21,17 +20,17 @@ import static org.mockito.Mockito.when;
 class GameCreatorServiceImplTest {
 
     private GameCreatorService gameCreatorService;
-    GameDao gameDao = mock(GameDaoImpl.class);
+    GameRepository gameRepository = mock(GameRepository.class);
     private static final String GAME_ID = UUID.randomUUID()
             .toString().replace("-", "");
 
     @BeforeEach
     void setup(){
-        gameCreatorService = new GameCreatorServiceImpl(gameDao);
+        gameCreatorService = new GameCreatorServiceImpl(gameRepository);
     }
 
     @Test
-    public void should_create_game() throws Exception {
+    public void should_create_game() {
         // given
         CreatePlayerDto adminPlayer = createAdminPlayer();
         Player franek = new Player(0, "Franek");
@@ -43,12 +42,15 @@ class GameCreatorServiceImplTest {
                 .withPlayers(List.of(franek))
                 .build();
         // when
-        when(gameDao.saveGame(any())).thenReturn(game);
+        when(gameRepository.save(any())).thenReturn(game);
+        when(gameRepository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
         gameCreatorService.createGame(adminPlayer);
 
-        System.out.println(game.getGameId());
         // then
-
+        Game savedGame = gameRepository.findById(GAME_ID).orElseThrow();
+        assertEquals(GAME_ID, savedGame.getGameId());
+        assertEquals(GameStatus.OPEN, savedGame.getGameStatus());
+        assertEquals(1, savedGame.getPlayers().size());
     }
 
     private CreatePlayerDto createAdminPlayer() {
