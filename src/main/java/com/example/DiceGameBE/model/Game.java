@@ -7,15 +7,12 @@ import org.springframework.data.redis.core.index.Indexed;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @RedisHash
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @NoArgsConstructor
-@AllArgsConstructor
 public class Game implements Serializable {
 
 //    @EqualsAndHashCode.Include
@@ -34,12 +31,28 @@ public class Game implements Serializable {
         System.out.println(gameId);
         this.gameStatus = GameStatus.OPEN;
         this.adminPlayer = adminPlayer;
-        players.add(adminPlayer);
+        getPlayers().add(adminPlayer);
         this.currentTurn = 0;
         this.startGameTime = LocalDateTime.now();
     }
 
     public void addPlayer(Player player){
-        players.add(player);
+        addPlayerValidator(player);
+        getPlayers().add(player);
+    }
+
+    private void addPlayerValidator(Player player) {
+        if(players.size() >= 4){
+            throw new ArrayStoreException("The maximum number of players in one game is 4");
+        }
+        if(gameStatus == GameStatus.FINISHED){
+            throw new IllegalStateException("you cannot add players because game is finished");
+        }
+        boolean isPlayerUnique = players.stream()
+                .anyMatch(p -> Objects.equals(p.getId(), player.getId())
+                                || Objects.equals(p.getName(), player.getName()));
+        if(isPlayerUnique){
+            throw new RuntimeException("The id or name of new player is not unique in this game");
+        }
     }
 }

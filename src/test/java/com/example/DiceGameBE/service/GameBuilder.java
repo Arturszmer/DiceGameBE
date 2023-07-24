@@ -14,8 +14,6 @@ class GameBuilder {
     private GameStatus gameStatus;
     private List<Player> players = new ArrayList<>();
     private Player adminPlayer;
-    private Integer currentTurn = 0;
-    private LocalDateTime startGameTime = LocalDateTime.now();
 
     public static GameBuilder aGameBuilder() {
         return new GameBuilder();
@@ -42,13 +40,13 @@ class GameBuilder {
     }
 
     public Game build() {
-        return new Game(
-                gameId,
-                gameStatus,
-                players,
-                adminPlayer,
-                currentTurn,
-                startGameTime
-        );
+        Game game = new Game();
+        game.setGameId(gameId);
+        game.setGameStatus(gameStatus);
+        game.setAdminPlayer(adminPlayer);
+        game.setCurrentTurn(0);
+        game.setStartGameTime(LocalDateTime.now());
+        game.getPlayers().addAll(players);
+        return game;
     }
 }

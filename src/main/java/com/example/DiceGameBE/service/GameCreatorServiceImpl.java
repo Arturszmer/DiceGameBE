@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 import static com.example.DiceGameBE.assemblers.PlayerAssembler.toEntity;
 
 @Service
@@ -25,16 +23,6 @@ public class GameCreatorServiceImpl implements GameCreatorService{
         Game saved = gameRepository.save(game);
         log.info("The game has been created by CRUD, game id: {}", saved.getGameId());
         return saved;
-    }
-
-    @Override
-    public Game findGameByGameId(String gameId) {
-        return gameRepository.findById(gameId).orElse(null);
-    }
-
-    @Override
-    public List<Game> findOpenGames(GameStatus status) {
-        return gameRepository.findGamesByGameStatus(status);
     }
 
     @Override

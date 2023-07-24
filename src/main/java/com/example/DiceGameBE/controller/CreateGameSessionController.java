@@ -23,16 +23,6 @@ public class CreateGameSessionController {
         return ResponseEntity.ok(game);
     }
 
-    @GetMapping("/find-game")
-    public ResponseEntity<Game> findGameById(@RequestParam("gameId") String gameId){
-        return ResponseEntity.ok(gameCreatorService.findGameByGameId(gameId));
-    }
-
-    @GetMapping("/find-open-games")
-    public ResponseEntity<List<Game>> findOpenGames(){
-        return ResponseEntity.ok(gameCreatorService.findOpenGames(GameStatus.OPEN));
-    }
-
     @DeleteMapping("/delete-all-games")
     public ResponseEntity<String> deleteAllGames(){
         return ResponseEntity.ok(gameCreatorService.deleteAllGames());
