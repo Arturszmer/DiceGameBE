@@ -1,6 +1,5 @@
 package com.example.DiceGameBE.service;
 
-import com.example.DiceGameBE.dto.CreatePlayerDto;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.repository.GameRepository;
@@ -21,7 +20,7 @@ import static org.mockito.Mockito.when;
 public class GamePlayersProviderTest {
 
     private GamePlayersProvider playersProvider;
-    private GameRepository repository = mock(GameRepository.class);
+    private final GameRepository repository = mock(GameRepository.class);
 
     @BeforeEach
     void setup(){
@@ -36,7 +35,7 @@ public class GamePlayersProviderTest {
         //when
         when(repository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
 
-        boolean isAdded = playersProvider.addPlayerToOpenGame(createSimplePlayerDto(1, "user"), GAME_ID);
+        boolean isAdded = playersProvider.addPlayerToOpenGame("user", GAME_ID);
 
         //then
         assertTrue(isAdded);
@@ -44,12 +43,12 @@ public class GamePlayersProviderTest {
 
     @ParameterizedTest
     @MethodSource("checkExceptionsForAddPlayerMethod")
-    public void should_check_all_validators_in_add_player_method(Game game, CreatePlayerDto player, Class<Exception> exception, GameStatus gameStatus) {
+    public void should_check_all_validators_in_add_player_method(Game game, String player, Class<Exception> exception, GameStatus gameStatus) {
         // given
         game.setGameStatus(gameStatus);
 
         // when
-        when(repository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
+        when(repository.findById(GAME_ID)).thenReturn(Optional.of(game));
 
         // then
         assertThrows(exception,
@@ -58,10 +57,9 @@ public class GamePlayersProviderTest {
 
     private static Stream<Arguments> checkExceptionsForAddPlayerMethod(){
         return Stream.of(
-                Arguments.of(buildSimpleGame(3), createSimplePlayerDto(4, "user4"), ArrayStoreException.class, GameStatus.OPEN),
-                Arguments.of(buildSimpleGame(), createSimplePlayerDto(1, "user1"), IllegalStateException.class, GameStatus.FINISHED),
-                Arguments.of(buildSimpleGame(1), createSimplePlayerDto(1, "userUnique"), RuntimeException.class, GameStatus.OPEN),
-                Arguments.of(buildSimpleGame(1), createSimplePlayerDto(2, "user1"), RuntimeException.class, GameStatus.OPEN)
+                Arguments.of(buildSimpleGame(3), "user4", ArrayStoreException.class, GameStatus.OPEN),
+                Arguments.of(buildSimpleGame(), "user1", IllegalStateException.class, GameStatus.FINISHED),
+                Arguments.of(buildSimpleGame(1), "user1", RuntimeException.class, GameStatus.OPEN)
                 );
     }
 }

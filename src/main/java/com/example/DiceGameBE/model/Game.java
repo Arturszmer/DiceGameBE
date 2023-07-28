@@ -36,7 +36,8 @@ public class Game implements Serializable {
         this.startGameTime = LocalDateTime.now();
     }
 
-    public void addPlayer(Player player){
+    public void addPlayer(String playerName){
+        Player player = new Player(players.size(), playerName);
         addPlayerValidator(player);
         getPlayers().add(player);
     }
