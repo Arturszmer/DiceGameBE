@@ -19,8 +19,8 @@ public class GamePlayersProviderImpl implements GamePlayersProvider {
 
     @Override
     public Player addPlayerToOpenGame(String playerName, String gameId) {
-        Optional<Game> game = gameRepository.findGameByGameIdAndGameStatus(gameId, GameStatus.OPEN);
-        if(game.isPresent()){
+        Optional<Game> game = gameRepository.findById(gameId);
+        if(game.isPresent() && game.get().getGameStatus() == GameStatus.OPEN){
             game.get().addPlayer(playerName);
             log.info("New Player has been added, his name is: {}", playerName);
             gameRepository.save(game.get());
@@ -29,7 +29,7 @@ public class GamePlayersProviderImpl implements GamePlayersProvider {
                     .findFirst()
                     .orElseThrow();
         } else {
-            throw new RuntimeException("Something went wrong, the game is not exist");
+            throw new RuntimeException("Something went wrong, the game is closed or not exist");
         }
     }
 }

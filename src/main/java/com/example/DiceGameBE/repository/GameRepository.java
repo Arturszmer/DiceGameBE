@@ -12,5 +12,4 @@ import java.util.Optional;
 public interface GameRepository extends CrudRepository<Game, String> {
 
     List<Game> findGamesByGameStatus(GameStatus gameStatus);
-    Optional<Game> findGameByGameIdAndGameStatus(String id, GameStatus status);
 }
