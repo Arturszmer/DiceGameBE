@@ -29,7 +29,7 @@ public class GamePlayersProviderImpl implements GamePlayersProvider {
                     .findFirst()
                     .orElseThrow();
         } else {
-            throw new RuntimeException("Something went wrong, the game is closed or not exist");
+            throw new RuntimeException("Something went wrong, the game is not in OPEN status or is not exist");
         }
     }
 }
