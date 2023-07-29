@@ -1,13 +1,10 @@
 package com.example.DiceGameBE.controller;
 
-import com.example.DiceGameBE.dto.CreatePlayerDto;
+import com.example.DiceGameBE.dto.AdminPlayerDto;
 import com.example.DiceGameBE.model.Game;
-import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.service.GameCreatorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 public class CreateGameSessionController {
@@ -18,7 +15,7 @@ public class CreateGameSessionController {
     }
 
     @PostMapping("/create-game")
-    public ResponseEntity<Game> createGame(@RequestBody CreatePlayerDto playerName){
+    public ResponseEntity<Game> createGame(@RequestBody AdminPlayerDto playerName){
         Game game = gameCreatorService.createGame(playerName);
         return ResponseEntity.ok(game);
     }

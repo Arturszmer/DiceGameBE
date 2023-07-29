@@ -1,6 +1,8 @@
 package com.example.DiceGameBE.service;
 
+import com.example.DiceGameBE.model.Player;
+
 public interface GamePlayersProvider {
 
-    boolean addPlayerToOpenGame(String playerName, String gameId);
+    Player addPlayerToOpenGame(String playerName, String gameId);
 }

@@ -1,16 +1,13 @@
 package com.example.DiceGameBE.service;
 
-import com.example.DiceGameBE.dto.CreatePlayerDto;
+import com.example.DiceGameBE.dto.AdminPlayerDto;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
-import com.example.DiceGameBE.model.Player;
 import com.example.DiceGameBE.repository.GameRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.example.DiceGameBE.service.models.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +28,7 @@ class GameCreatorServiceImplTest {
     @Test
     public void should_create_game() {
         // given
-        CreatePlayerDto adminPlayer = createAdminPlayerDto();
+        AdminPlayerDto adminPlayer = createAdminPlayerDto();
         Game game = buildSimpleGame();
 
         // when

@@ -1,5 +1,6 @@
 package com.example.DiceGameBE.controller;
 
+import com.example.DiceGameBE.model.Player;
 import com.example.DiceGameBE.service.GamePlayersProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +16,10 @@ public class GamePlayersController {
     private final GamePlayersProvider gamePlayersProvider;
 
     @PostMapping("/{game-id}/add-player")
-    public ResponseEntity<String> addPlayer(
+    public ResponseEntity<Player> addPlayer(
             @PathVariable("game-id") String gameId,
                                             @RequestParam String playerName){
-        boolean isAdded = gamePlayersProvider.addPlayerToOpenGame(playerName, gameId);
-        return isAdded
-                ? ResponseEntity.ok("New Player has been added")
-                : ResponseEntity.ok("Something went wrong, user was not added");
+        Player addedPlayer = gamePlayersProvider.addPlayerToOpenGame(playerName, gameId);
+        return ResponseEntity.ok(addedPlayer);
     }
 }

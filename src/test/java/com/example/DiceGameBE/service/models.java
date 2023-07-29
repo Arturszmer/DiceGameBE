@@ -1,6 +1,6 @@
 package com.example.DiceGameBE.service;
 
-import com.example.DiceGameBE.dto.CreatePlayerDto;
+import com.example.DiceGameBE.dto.AdminPlayerDto;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.model.Player;
@@ -14,17 +14,11 @@ public class models {
             .toString().replace("-", "");
     private static final String ADMIN_NAME = "admin";
 
-    static CreatePlayerDto createAdminPlayerDto() {
-        return new CreatePlayerDto(0, ADMIN_NAME);
+    static AdminPlayerDto createAdminPlayerDto() {
+        return new AdminPlayerDto(0, ADMIN_NAME);
     }
     static Player createAdminPlayer(){
         return new Player(0, ADMIN_NAME);
-    }
-    static CreatePlayerDto createSimplePlayerDto(int id, String name) {
-        return new CreatePlayerDto(id, name);
-    }
-    static Player createSimplePlayer(int id, String name){
-        return new Player(id, name);
     }
 
     static Game buildSimpleGame(){

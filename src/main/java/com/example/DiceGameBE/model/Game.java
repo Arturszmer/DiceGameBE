@@ -53,7 +53,7 @@ public class Game implements Serializable {
                 .anyMatch(p -> Objects.equals(p.getId(), player.getId())
                                 || Objects.equals(p.getName(), player.getName()));
         if(isPlayerUnique){
-            throw new RuntimeException("The id or name of new player is not unique in this game");
+            throw new RuntimeException("The new player name is not unique in this game");
         }
     }
 }
