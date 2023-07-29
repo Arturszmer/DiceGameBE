@@ -2,6 +2,7 @@ package com.example.DiceGameBE.service;
 
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
+import com.example.DiceGameBE.model.Player;
 import com.example.DiceGameBE.repository.GameRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static com.example.DiceGameBE.model.GameStatus.*;
 import static com.example.DiceGameBE.service.models.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -33,12 +35,14 @@ public class GamePlayersProviderTest {
         Game game = buildSimpleGame();
 
         //when
-        when(repository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
+        when(repository.findGameByGameIdAndGameStatus(GAME_ID, OPEN)).thenReturn(Optional.ofNullable(game));
 
-        boolean isAdded = playersProvider.addPlayerToOpenGame("user", GAME_ID);
+        Player addedPlayer = playersProvider.addPlayerToOpenGame("user", GAME_ID);
 
         //then
-        assertTrue(isAdded);
+        assertEquals("user", addedPlayer.getName());
+        assertEquals(1, addedPlayer.getId());
+        assertEquals(0, addedPlayer.getPoints());
     }
 
     @ParameterizedTest
@@ -48,7 +52,7 @@ public class GamePlayersProviderTest {
         game.setGameStatus(gameStatus);
 
         // when
-        when(repository.findById(GAME_ID)).thenReturn(Optional.of(game));
+        when(repository.findGameByGameIdAndGameStatus(GAME_ID, OPEN)).thenReturn(Optional.of(game));
 
         // then
         assertThrows(exception,
@@ -57,9 +61,9 @@ public class GamePlayersProviderTest {
 
     private static Stream<Arguments> checkExceptionsForAddPlayerMethod(){
         return Stream.of(
-                Arguments.of(buildSimpleGame(3), "user4", ArrayStoreException.class, GameStatus.OPEN),
-                Arguments.of(buildSimpleGame(), "user1", IllegalStateException.class, GameStatus.FINISHED),
-                Arguments.of(buildSimpleGame(1), "user1", RuntimeException.class, GameStatus.OPEN)
+                Arguments.of(buildSimpleGame(3), "user4", ArrayStoreException.class, OPEN),
+                Arguments.of(buildSimpleGame(), "user1", IllegalStateException.class, FINISHED),
+                Arguments.of(buildSimpleGame(1), "user1", RuntimeException.class, OPEN)
                 );
     }
 }
