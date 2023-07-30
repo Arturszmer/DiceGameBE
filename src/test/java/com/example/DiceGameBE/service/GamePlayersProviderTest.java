@@ -1,5 +1,6 @@
 package com.example.DiceGameBE.service;
 
+import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.model.Player;
@@ -46,13 +47,13 @@ public class GamePlayersProviderTest {
     }
 
     @Test
-    public void shouldNotAddPlayerToGameWithDifferentStatusThanOpen() throws Exception {
+    public void shouldNotAddPlayerToGameWithDifferentStatusThanOpen(){
         // given
         Game game = buildSimpleGame();
         game.setGameStatus(STARTED);
 
         // when
-        when(repository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
+        when(repository.findById(GAME_ID)).thenReturn(Optional.of(game));
 
         // then
         assertThrows(RuntimeException.class, () -> playersProvider.addPlayerToOpenGame("user", GAME_ID));
@@ -75,9 +76,9 @@ public class GamePlayersProviderTest {
 
     private static Stream<Arguments> checkExceptionsForAddPlayerMethod(){
         return Stream.of(
-                Arguments.of(buildSimpleGame(3), "user4", ArrayStoreException.class, OPEN),
-                Arguments.of(buildSimpleGame(), "user1", RuntimeException.class, FINISHED),
-                Arguments.of(buildSimpleGame(1), "user1", RuntimeException.class, OPEN)
+                Arguments.of(buildSimpleGame(3), "user4", GameException.class, OPEN),
+                Arguments.of(buildSimpleGame(), "user1", GameException.class, FINISHED),
+                Arguments.of(buildSimpleGame(1), "user1", GameException.class, OPEN)
                 );
     }
 }
