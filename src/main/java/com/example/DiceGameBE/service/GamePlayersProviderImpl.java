@@ -1,6 +1,8 @@
 package com.example.DiceGameBE.service;
 
 import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.model.GameStatus;
+import com.example.DiceGameBE.model.Player;
 import com.example.DiceGameBE.repository.GameRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,15 +18,18 @@ public class GamePlayersProviderImpl implements GamePlayersProvider {
     private final GameRepository gameRepository;
 
     @Override
-    public boolean addPlayerToOpenGame(String playerName, String gameId) {
+    public Player addPlayerToOpenGame(String playerName, String gameId) {
         Optional<Game> game = gameRepository.findById(gameId);
-        if(game.isPresent()){
+        if(game.isPresent() && game.get().getGameStatus() == GameStatus.OPEN){
             game.get().addPlayer(playerName);
             log.info("New Player has been added, his name is: {}", playerName);
             gameRepository.save(game.get());
-            return true;
+            return game.get().getPlayers().stream()
+                    .filter(p -> p.getName().equals(playerName))
+                    .findFirst()
+                    .orElseThrow();
         } else {
-            return false;
+            throw new RuntimeException("Something went wrong, the game is not in OPEN status or is not exist");
         }
     }
 }
