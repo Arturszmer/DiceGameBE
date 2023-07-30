@@ -18,7 +18,7 @@ public class GamesSearchingServiceImpl implements GamesSearchingService{
 
     @Override
     public Game findGameByGameId(String gameId) {
-        return gameRepository.findById(gameId).orElseThrow(() -> new GameException(GameErrorResult.GAME_NOT_FOUND));
+        return gameRepository.findById(gameId).orElseThrow(() -> new GameException(GameErrorResult.GAME_NOT_FOUND_EX));
     }
 
     @Override
