@@ -1,5 +1,7 @@
 package com.example.DiceGameBE.service;
 
+import com.example.DiceGameBE.exceptions.GameErrorResult;
+import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.repository.GameRepository;
@@ -16,7 +18,7 @@ public class GamesSearchingServiceImpl implements GamesSearchingService{
 
     @Override
     public Game findGameByGameId(String gameId) {
-        return gameRepository.findById(gameId).orElse(null);
+        return gameRepository.findById(gameId).orElseThrow(() -> new GameException(GameErrorResult.GAME_NOT_FOUND));
     }
 
     @Override
