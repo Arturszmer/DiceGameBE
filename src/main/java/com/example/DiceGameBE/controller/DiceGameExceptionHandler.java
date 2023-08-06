@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 @RestControllerAdvice
 public class DiceGameExceptionHandler {
 
-//    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     @ExceptionHandler(GameException.class)
     public ResponseEntity<ErrorResponse> handleGameException(final GameException exception){
         log.warn("Game exception occur: ", exception);

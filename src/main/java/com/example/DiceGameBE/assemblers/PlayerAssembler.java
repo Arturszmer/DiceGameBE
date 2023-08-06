@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 public class PlayerAssembler {
 
     public static Player toEntity(AdminPlayerDto adminPlayerDto){
-        return new Player(adminPlayerDto.getId(), adminPlayerDto.getUsername());
+        return new Player(adminPlayerDto.getId(), adminPlayerDto.getName());
     }
 
 }

@@ -17,7 +17,6 @@ import java.util.*;
 @NoArgsConstructor
 public class Game implements Serializable {
 
-//    @EqualsAndHashCode.Include
     @Id
     private String gameId;
     @EqualsAndHashCode.Include

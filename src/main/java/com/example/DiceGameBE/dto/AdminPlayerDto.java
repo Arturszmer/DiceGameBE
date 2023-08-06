@@ -5,12 +5,12 @@ import lombok.Getter;
 @Getter
 public class AdminPlayerDto {
     private final Integer id;
-    private final String username;
+    private final String name;
     private final Integer points;
 
-    public AdminPlayerDto(Integer id, String username) {
+    public AdminPlayerDto(Integer id, String name) {
         this.id = id;
-        this.username = username;
+        this.name = name;
         this.points = 0;
     }
 }
