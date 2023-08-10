@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-class GameBuilder {
+public class GameBuilder {
 
     private String gameId;
     private GameStatus gameStatus;

@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class models {
 
-    static final String GAME_ID = UUID.randomUUID()
+    public static final String GAME_ID = UUID.randomUUID()
             .toString().replace("-", "");
     private static final String ADMIN_NAME = "admin";
 
