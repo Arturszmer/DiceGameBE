@@ -22,7 +22,7 @@ public class models {
     }
 
     static Game buildSimpleGame(){
-        return GameBuilder.aGameBuilder()
+        return GameBuilder.gameBuilder()
                 .withGameId(GAME_ID)
                 .withGameStatus(GameStatus.OPEN)
                 .withAdminPlayer(createAdminPlayer())
@@ -30,7 +30,7 @@ public class models {
                 .build();
     }
     static Game buildSimpleGame(int numberOfPlayers){
-        Game game = GameBuilder.aGameBuilder()
+        Game game = GameBuilder.gameBuilder()
                 .withGameId(GAME_ID)
                 .withGameStatus(GameStatus.OPEN)
                 .withAdminPlayer(createAdminPlayer())

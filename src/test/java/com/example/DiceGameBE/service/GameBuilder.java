@@ -15,7 +15,7 @@ public class GameBuilder {
     private List<Player> players = new ArrayList<>();
     private Player adminPlayer;
 
-    public static GameBuilder aGameBuilder() {
+    public static GameBuilder gameBuilder() {
         return new GameBuilder();
     }
 

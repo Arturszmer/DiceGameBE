@@ -11,7 +11,8 @@ import java.util.UUID;
 public class DiceModel {
 
 
-    private static final String GAME_ID = String.valueOf(UUID.randomUUID());
+    private static final String GAME_ID = String.valueOf(UUID.randomUUID()).replace("-","");
+
     private static final String ADMIN_PLAYER = "ADMIN_PLAYER";
 
     static Player ADMIN_PLAYER(){
@@ -19,7 +20,7 @@ public class DiceModel {
 
 
     static Game builDiceModelGame(){
-        return GameBuilder.aGameBuilder()
+        return GameBuilder.gameBuilder()
                 .withGameId(GAME_ID)
                 .withAdminPlayer(ADMIN_PLAYER())
                 .withGameStatus(GameStatus.OPEN)
