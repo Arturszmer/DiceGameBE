@@ -1,10 +1,11 @@
-package com.example.DiceGameBE.service;
+package com.example.DiceGameBE.service.impl;
 
 import com.example.DiceGameBE.exceptions.GameErrorResult;
 import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.Player;
 import com.example.DiceGameBE.repository.GameRepository;
+import com.example.DiceGameBE.service.GamePlayersProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
