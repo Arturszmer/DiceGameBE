@@ -14,7 +14,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class Dice implements Serializable {
 
-
     private Integer Value;
     private boolean isGoodNumber;
     private boolean isChecked;
