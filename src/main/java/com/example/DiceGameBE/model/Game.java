@@ -45,6 +45,9 @@ public class Game implements Serializable {
     }
 
     private void addPlayerValidator(Player player) {
+        if(player.getName().length() < 3){
+            throw new GameException(PLAYER_NAME_MIN_LENGTH);
+        }
         if(players.size() >= 4){
             throw new GameException(GAME_PLAYERS_SIZE_EX);
         }
