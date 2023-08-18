@@ -25,7 +25,7 @@ public class Game implements Serializable {
     private Player adminPlayer;
     private Integer currentTurn;
     private LocalDateTime startGameTime;
-    private List<Dice> dicesList = new ArrayList<>();
+    private List<Dice> diceList = new ArrayList<>();
 
     public Game(Player adminPlayer) {
         this.gameId = UUID.randomUUID().toString().replace("-", "");
@@ -36,11 +36,13 @@ public class Game implements Serializable {
         this.currentTurn = 0;
         this.startGameTime = LocalDateTime.now();
     }
+
     public void addPlayer(String playerName){
         Player player = new Player(players.size(), playerName);
         addPlayerValidator(player);
         getPlayers().add(player);
     }
+
     private void addPlayerValidator(Player player) {
         if(players.size() >= 4){
             throw new GameException(GAME_PLAYERS_SIZE_EX);

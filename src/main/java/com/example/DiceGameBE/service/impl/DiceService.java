@@ -1,12 +1,15 @@
 package com.example.DiceGameBE.service.impl;
 
 import com.example.DiceGameBE.exceptions.GameErrorResult;
-import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Dice;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 @Service
@@ -14,31 +17,37 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class DiceService {
 
-    public List<Dice> rollDices(int numberOfDicesToThrow) throws GameException {
+    public List<Dice> rollDices(int numberOfDicesToRoll)  {
         Random random = new Random();
-        int numberOfRepeats = 3;
-        int numberOfRolls = random.nextInt(5) + 1;
+        int numberOfRoll = random.nextInt(1, 6);
 
-        if (numberOfRolls > 5) {
-            throw new GameException(GameErrorResult.valueOf("Number of rolls cannot > 5."));
-        }
+        assert numberOfRoll < 5 : GameErrorResult.TOO_MANY_THROWS;
+
         List<Dice> diceList = new ArrayList<>();
-        Random random2 = new Random();
 
+        IntStream.range(0, numberOfRoll).map(i -> random.nextInt(6) + 1).forEach(value -> {
+            boolean isGoodNumber = value == 1 || value == 5;
+            Dice dice = new Dice(value, isGoodNumber, false, false, false);
+            diceList.add(dice);
+        });
+
+        calculateAttributes(diceList);
+
+        return diceList;
+    }
+
+    private void calculateAttributes(List<Dice> diceList) {
         Map<Integer, Integer> valueOccurrences = new HashMap<>();
 
-        IntStream.range(0, numberOfRolls)
-                .map(i -> random2.nextInt(6) + 1)
-                .forEach(value -> {
-                    boolean isGoodNumber = value == 1 || value == 5;
-                    valueOccurrences.put(value, valueOccurrences.getOrDefault(value, 0) + 1);
-                    boolean isMultiple = valueOccurrences.getOrDefault(value, 0) >= numberOfRepeats;
-                    Dice dice = new Dice(value, isGoodNumber, false, isMultiple, false);
-                    diceList.add(dice);
-                    if (valueOccurrences.get(value) >= numberOfRepeats) {
-                        dice.setMultiple(true);
-                    }
-                });
-        return diceList;
+        for (Dice dice : diceList) {
+            int value = dice.getValue();
+            valueOccurrences.put(value, valueOccurrences.getOrDefault(value, 0) + 1);
+            boolean isMultiple = switch (valueOccurrences.get(value)) {
+                case 3, 4, 5 -> true;
+                default -> false;
+            };
+
+            dice.setMultiple(isMultiple);
+        }
     }
 }
