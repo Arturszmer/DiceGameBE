@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 @RequiredArgsConstructor
 public class DiceService {
 
-    public List<Dice> rollDices() throws GameException {
+    public List<Dice> rollDices(int numberOfDicesToThrow) throws GameException {
         Random random = new Random();
         int numberOfRepeats = 3;
         int numberOfRolls = random.nextInt(5) + 1;

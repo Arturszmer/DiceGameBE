@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.example.DiceGameBE.model.GameStatus.*;
-import static com.example.DiceGameBE.service.models.*;
+import static com.example.DiceGameBE.service.GameModels.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
