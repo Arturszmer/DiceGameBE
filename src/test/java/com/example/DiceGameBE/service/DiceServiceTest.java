@@ -24,11 +24,11 @@ class DiceServiceTest {
     public void testRollDice (int numberOfDicesToRoll){
 
         //given
-        List<Dice> diceList = diceService.rollDices(numberOfDicesToRoll);
+        List<Dice> dices = diceService.rollDices(numberOfDicesToRoll);
 
         //then
-        assertEquals(numberOfDicesToRoll, diceList.size());
-        for (Dice dice : diceList) {
+        assertEquals(numberOfDicesToRoll, dices.size());
+        for (Dice dice : dices) {
             assertTrue(dice.getValue() >= 1 && dice.getValue() <= 6);
             switch (dice.getValue()) {
                 case 1, 5 -> assertTrue(dice.isGoodNumber());
