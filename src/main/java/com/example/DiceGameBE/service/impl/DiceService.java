@@ -1,6 +1,5 @@
 package com.example.DiceGameBE.service.impl;
 
-import com.example.DiceGameBE.exceptions.GameErrorResult;
 import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Dice;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.stream.IntStream;
+
+import static com.example.DiceGameBE.exceptions.GameErrorResult.TOO_FEW_DICE_ROLLS;
+import static com.example.DiceGameBE.exceptions.GameErrorResult.TOO_MANY_DICE_ROLLS;
+
 
 @Service
 @Slf4j
@@ -21,26 +23,27 @@ public class DiceService {
     /*Metoda do losowania*/
     public List<Dice> rollDices(int numberOfDicesToRoll)  {
         Random random = new Random();
-        int numberOfRoll = random.nextInt(1, 6);
 
-        if (numberOfRoll <= 0) throw new GameException(GameErrorResult.TOO_FEW_ROLLS);
+        if (numberOfDicesToRoll <= 0) throw new GameException(TOO_FEW_DICE_ROLLS);
 
-        if (numberOfRoll > 5) throw new GameException(GameErrorResult.TOO_MANY_ROLLS);
+        if (numberOfDicesToRoll > 5) throw new GameException(TOO_MANY_DICE_ROLLS);
 
         List<Dice> dices = new ArrayList<>();
 
-        IntStream.range(0, numberOfRoll).map(i -> random.nextInt(6) + 1).forEach(value -> {
+        for (int i = 0; i < numberOfDicesToRoll; i++) {
+            int value = random.nextInt(6) +1;
             boolean isGoodNumber = value == 1 || value == 5;
             Dice dice = new Dice(value, isGoodNumber, false, false, false);
             dices.add(dice);
-        });
+        }
 
         calculateAttributes(dices);
 
         return dices;
+
     }
     /*metoda do dodawania isMultiple*/
-    private void calculateAttributes(List<Dice> dices) {
+    public void calculateAttributes(List<Dice> dices) {
         Map<Integer, Integer> valueOccurrences = new HashMap<>();
 
         for (Dice dice : dices) {

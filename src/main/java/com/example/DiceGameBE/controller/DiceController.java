@@ -14,8 +14,8 @@ public class DiceController {
 
     private final DiceService diceService;
     @PostMapping("/roll")
-    public List<Dice> rollDices(@RequestBody int numberOfThrows) {
-        return diceService.rollDices(numberOfThrows);
+    public List<Dice> rollDices(@RequestBody int numberOfDicesToRoll) {
+        return diceService.rollDices(numberOfDicesToRoll);
     }
 }
 

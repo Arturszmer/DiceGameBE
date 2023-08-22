@@ -5,7 +5,6 @@ import com.example.DiceGameBE.service.impl.DiceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,8 +18,9 @@ class DiceServiceTest {
         diceService = new DiceService();
     }
 
+
     @ParameterizedTest
-    @ValueSource(ints = {1, 2, 3, 4, 5, 6})
+    @ValueSource(ints = {1, 2, 3, 4, 5})
     public void testRollDice(int numberOfDicesToRoll) {
 
         //given
