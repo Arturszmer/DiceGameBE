@@ -19,4 +19,8 @@ public class Dice implements Serializable {
     private boolean isChecked;
     private boolean isMultiple;
     private boolean isImmutable;
+
+    public Dice(Integer value) {
+        Value = value;
+    }
 }
