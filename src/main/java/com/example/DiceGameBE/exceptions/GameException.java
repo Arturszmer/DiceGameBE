@@ -1,13 +1,15 @@
 package com.example.DiceGameBE.exceptions;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 @Getter
-@RequiredArgsConstructor
 public class GameException extends RuntimeException {
 
-    private final GameErrorResult errorResult;
+    private final HttpStatus status;
 
-
+    public GameException(GameErrorResult errorResult, Object ...o) {
+        super(String.format(errorResult.getMessage(), o));
+        this.status = errorResult.getStatus();
+    }
 }
