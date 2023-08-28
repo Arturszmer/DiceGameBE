@@ -1,26 +1,28 @@
 package com.example.DiceGameBE.service;
 
+import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Dice;
-import com.example.DiceGameBE.service.impl.DiceService;
+import com.example.DiceGameBE.service.impl.DiceServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.*;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import static com.example.DiceGameBE.exceptions.GameErrorResult.BAD_AMOUNT_OF_DICES;
 import static org.junit.jupiter.api.Assertions.*;
 
-class DiceServiceTest extends DiceService{
+
+class DiceServiceImplTest implements AutoCloseable{
 
     @Spy
-    private DiceService diceService;
+    private DiceServiceImpl diceService;
 
     @BeforeEach
-    void setup() {
+    void setup(){
         MockitoAnnotations.openMocks(this);
     }
 
@@ -55,7 +57,7 @@ class DiceServiceTest extends DiceService{
                 new Dice(2), new Dice(2), new Dice(2), new Dice(5), new Dice(6)
         );
 
-        Method setAttributesMethod = DiceService.class.getDeclaredMethod("setAttributes", List.class);
+        Method setAttributesMethod = DiceServiceImpl.class.getDeclaredMethod("setAttributes", List.class);
         setAttributesMethod.setAccessible(true);
 
         // when
@@ -65,5 +67,21 @@ class DiceServiceTest extends DiceService{
         assertTrue(dices.get(0).isMultiple() && dices.get(0).isGoodNumber());
         assertTrue(!dices.get(3).isMultiple() && dices.get(3).isGoodNumber());
         assertFalse(dices.get(4).isMultiple() && dices.get(4).isGoodNumber());
+    }
+
+
+    @ParameterizedTest
+    @ValueSource(ints = {0,6,7,8})
+    public void testValidateDicesToRoll(int numberOfDicesToRoll) {
+
+        //then
+        assertSame(assertThrows(GameException.class, () -> diceService.rollDices(numberOfDicesToRoll))
+                .getErrorResult(), BAD_AMOUNT_OF_DICES);
+
+        }
+
+    @Override
+    public void close() {
+
     }
 }
