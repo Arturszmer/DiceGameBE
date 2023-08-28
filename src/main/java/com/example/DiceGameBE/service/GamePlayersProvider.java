@@ -1,8 +1,9 @@
 package com.example.DiceGameBE.service;
 
-import com.example.DiceGameBE.model.Player;
+import com.example.DiceGameBE.dto.NewPlayerDto;
+import com.example.DiceGameBE.model.Game;
 
 public interface GamePlayersProvider {
 
-    Player addPlayerToOpenGame(String playerName, String gameId);
+    Game addPlayerToOpenGame(NewPlayerDto playerName, String gameId);
 }

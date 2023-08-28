@@ -1,13 +1,14 @@
 package com.example.DiceGameBE.controller;
 
-import com.example.DiceGameBE.model.Player;
+import com.example.DiceGameBE.dto.NewPlayerDto;
+import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.service.GamePlayersProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 @RequiredArgsConstructor
@@ -16,10 +17,9 @@ public class GamePlayersController {
     private final GamePlayersProvider gamePlayersProvider;
 
     @PostMapping("/{game-id}/add-player")
-    public ResponseEntity<Player> addPlayer(
-            @PathVariable("game-id") String gameId,
-                                            @RequestParam String playerName){
-        Player addedPlayer = gamePlayersProvider.addPlayerToOpenGame(playerName, gameId);
-        return ResponseEntity.ok(addedPlayer);
+    public ResponseEntity<Game> addPlayer(@PathVariable("game-id") String gameId,
+                                          @RequestBody NewPlayerDto playerName){
+        Game game = gamePlayersProvider.addPlayerToOpenGame(playerName, gameId);
+        return ResponseEntity.ok(game);
     }
 }
