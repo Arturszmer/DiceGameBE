@@ -18,5 +18,4 @@ public enum GameErrorResult {
     private final HttpStatus status;
     private final String message;
 
-
 }

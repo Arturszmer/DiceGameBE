@@ -68,13 +68,13 @@ class DiceServiceImplTest {
         assertTrue(!dices.get(3).isMultiple() && dices.get(3).isGoodNumber());
         assertFalse(dices.get(4).isMultiple() && dices.get(4).isGoodNumber());
     }
-//
-//    @ParameterizedTest
-//    @ValueSource(ints = {0,6,7,8})
-//    public void testValidateDicesToRoll(int numberOfDicesToRoll) {
-//
-//        //then
-//        assertSame(assertThrows(GameException.class, () -> diceService.rollDices(numberOfDicesToRoll))
-//                .getErrorResult(), BAD_AMOUNT_OF_DICES);
-//        }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0,6,7,8})
+    public void testValidateDicesToRoll(int numberOfDicesToRoll) {
+
+            // then
+        GameException exception = assertThrows(GameException.class, () -> diceService.rollDices(numberOfDicesToRoll));
+        assertEquals(BAD_AMOUNT_OF_DICES.getMessage(), exception.getMessage());
+    }
 }
