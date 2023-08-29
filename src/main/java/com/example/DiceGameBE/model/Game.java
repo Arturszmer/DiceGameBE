@@ -44,17 +44,20 @@ public class Game implements Serializable {
     }
 
     private void addPlayerValidator(Player player) {
+        if(gameStatus != GameStatus.OPEN){
+            throw new GameException(ADD_PLAYER_TO_NOT_OPEN_GAME_EX);
+        }
         if(players.size() >= 4){
             throw new GameException(GAME_PLAYERS_SIZE_EX);
         }
-        if(gameStatus != GameStatus.OPEN){
-            throw new GameException(ADD_PLAYER_TO_NOT_OPEN_GAME_EX);
+        if(player.getName().length() < 3){
+            throw new GameException(PLAYER_NAME_MIN_LENGTH, player.getName().length());
         }
         boolean isPlayerUnique = players.stream()
                 .anyMatch(p -> Objects.equals(p.getId(), player.getId())
                                 || Objects.equals(p.getName(), player.getName()));
         if(isPlayerUnique){
-            throw new GameException(UNIQUE_PLAYER_NAME_EX);
+            throw new GameException(UNIQUE_PLAYER_NAME_EX, player.getName());
         }
     }
 }

@@ -77,6 +77,7 @@ public class GamePlayersProviderTest {
 
     private static Stream<Arguments> checkExceptionsForAddPlayerMethod(){
         return Stream.of(
+                Arguments.of(buildSimpleGame(2), "ar", GameException.class, OPEN),
                 Arguments.of(buildSimpleGame(3), "user4", GameException.class, OPEN),
                 Arguments.of(buildSimpleGame(), "user1", GameException.class, FINISHED),
                 Arguments.of(buildSimpleGame(1), "user1", GameException.class, OPEN)
