@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static com.example.DiceGameBE.service.models.*;
+import static com.example.DiceGameBE.service.GameModels.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;

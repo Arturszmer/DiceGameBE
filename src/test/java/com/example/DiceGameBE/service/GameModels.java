@@ -8,7 +8,7 @@ import com.example.DiceGameBE.model.Player;
 import java.util.List;
 import java.util.UUID;
 
-public class models {
+class GameModels {
 
     static final String GAME_ID = UUID.randomUUID()
             .toString().replace("-", "");

@@ -5,11 +5,9 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
-
 import static com.example.DiceGameBE.exceptions.GameErrorResult.*;
 
 @Data
@@ -27,6 +25,7 @@ public class Game implements Serializable {
     private Player adminPlayer;
     private Integer currentTurn;
     private LocalDateTime startGameTime;
+    private List<Dice> dices = new ArrayList<>();
 
     public Game(Player adminPlayer) {
         this.gameId = UUID.randomUUID().toString().replace("-", "");
