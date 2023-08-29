@@ -16,7 +16,7 @@ import static com.example.DiceGameBE.exceptions.GameErrorResult.BAD_AMOUNT_OF_DI
 import static org.junit.jupiter.api.Assertions.*;
 
 
-class DiceServiceImplTest implements AutoCloseable{
+class DiceServiceImplTest {
 
     @Spy
     private DiceServiceImpl diceService;
@@ -69,7 +69,6 @@ class DiceServiceImplTest implements AutoCloseable{
         assertFalse(dices.get(4).isMultiple() && dices.get(4).isGoodNumber());
     }
 
-
     @ParameterizedTest
     @ValueSource(ints = {0,6,7,8})
     public void testValidateDicesToRoll(int numberOfDicesToRoll) {
@@ -77,11 +76,5 @@ class DiceServiceImplTest implements AutoCloseable{
         //then
         assertSame(assertThrows(GameException.class, () -> diceService.rollDices(numberOfDicesToRoll))
                 .getErrorResult(), BAD_AMOUNT_OF_DICES);
-
         }
-
-    @Override
-    public void close() {
-
-    }
 }

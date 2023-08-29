@@ -2,17 +2,17 @@
 
 import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Dice;
+import com.example.DiceGameBE.service.DiceService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static com.example.DiceGameBE.exceptions.GameErrorResult.BAD_AMOUNT_OF_DICES;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class DiceServiceImpl implements DiceService {
+
     @Override
     public List<Dice> rollDices(int numberOfDicesToRoll)  {
         validateDicesToRoll(numberOfDicesToRoll);
@@ -22,7 +22,6 @@ public class DiceServiceImpl implements DiceService {
         setAttributes(dices);
 
         return dices;
-
     }
 
     private static void validateDicesToRoll(int numberOfDicesToRoll) {
@@ -40,8 +39,8 @@ public class DiceServiceImpl implements DiceService {
         }
         return dices;
     }
-    @Override
-    public void setAttributes(List<Dice> dices) {
+
+    private void setAttributes(List<Dice> dices) {
         Map<Integer, Integer> diceValueCounts = new HashMap<>();
         for (Dice dice : dices) {
             int value = dice.getValue();
