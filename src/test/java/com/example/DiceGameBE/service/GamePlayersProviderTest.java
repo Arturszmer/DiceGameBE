@@ -1,9 +1,9 @@
 package com.example.DiceGameBE.service;
 
+import com.example.DiceGameBE.dto.NewPlayerDto;
 import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
-import com.example.DiceGameBE.model.Player;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.impl.GamePlayersProviderImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,12 +39,13 @@ public class GamePlayersProviderTest {
         //when
         when(repository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
 
-        Player addedPlayer = playersProvider.addPlayerToOpenGame("user", GAME_ID);
+        playersProvider.addPlayerToOpenGame(new NewPlayerDto("user"), GAME_ID);
 
         //then
-        assertEquals("user", addedPlayer.getName());
-        assertEquals(1, addedPlayer.getId());
-        assertEquals(0, addedPlayer.getPoints());
+        assert game != null;
+        assertEquals("user", game.getPlayers().get(1).getName());
+        assertEquals(1, game.getPlayers().get(1).getId());
+        assertEquals(0, game.getPlayers().get(1).getPoints());
     }
 
     @Test
@@ -57,13 +58,13 @@ public class GamePlayersProviderTest {
         when(repository.findById(GAME_ID)).thenReturn(Optional.of(game));
 
         // then
-        assertThrows(RuntimeException.class, () -> playersProvider.addPlayerToOpenGame("user", GAME_ID));
+        assertThrows(RuntimeException.class, () -> playersProvider.addPlayerToOpenGame(new NewPlayerDto("user"), GAME_ID));
 
     }
 
     @ParameterizedTest
     @MethodSource("checkExceptionsForAddPlayerMethod")
-    public void should_check_all_validators_in_add_player_method(Game game, String player, Class<Exception> exception, GameStatus gameStatus) {
+    public void should_check_all_validators_in_add_player_method(Game game, NewPlayerDto player, Class<Exception> exception, GameStatus gameStatus) {
         // given
         game.setGameStatus(gameStatus);
 
@@ -77,10 +78,10 @@ public class GamePlayersProviderTest {
 
     private static Stream<Arguments> checkExceptionsForAddPlayerMethod(){
         return Stream.of(
-                Arguments.of(buildSimpleGame(2), "ar", GameException.class, OPEN),
-                Arguments.of(buildSimpleGame(3), "user4", GameException.class, OPEN),
-                Arguments.of(buildSimpleGame(), "user1", GameException.class, FINISHED),
-                Arguments.of(buildSimpleGame(1), "user1", GameException.class, OPEN)
+                Arguments.of(buildSimpleGame(2), new NewPlayerDto("ar"), GameException.class, OPEN),
+                Arguments.of(buildSimpleGame(3),  new NewPlayerDto("user4"), GameException.class, OPEN),
+                Arguments.of(buildSimpleGame(),  new NewPlayerDto("user1"), GameException.class, FINISHED),
+                Arguments.of(buildSimpleGame(1),  new NewPlayerDto("user1"), GameException.class, OPEN)
                 );
     }
 }
