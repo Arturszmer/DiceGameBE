@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.DiceGameBE.exceptions.GameErrorResult.BAD_AMOUNT_OF_DICES;
@@ -76,5 +77,71 @@ class DiceServiceImplTest {
             // then
         GameException exception = assertThrows(GameException.class, () -> diceService.rollDices(numberOfDicesToRoll));
         assertEquals(BAD_AMOUNT_OF_DICES.getMessage(), exception.getMessage());
+    }
+    @Test
+    public void testShouldTemporaryPoints() {
+
+        //given
+        List<Dice> dices3 = new ArrayList<>();
+        dices3.add(new Dice(5, true, true, true, false));
+        dices3.add(new Dice(1, true, false, true, false));
+        int points3 = diceService.getTemporaryPoints(dices3);
+
+        //then
+        assertEquals(5, points3);
+    }
+    @Test
+    public void testShouldAllPointsFromRoll() {
+
+        //given
+        List<Dice> dices3 = new ArrayList<>();
+        dices3.add(new Dice(5, true, false, true, false));
+        dices3.add(new Dice(1, true, false, true, false));
+        int points3 = diceService.getAllPointsFromRoll(dices3);
+
+        //then
+        assertEquals(6, points3);
+    }
+
+    @Test
+    public void testCalculatePointsForMultipleOne() {
+        //given
+        List<Dice> dices2 = new ArrayList<>();
+        dices2.add(new Dice(1, true, false, true, false));
+        dices2.add(new Dice(1, true, false, true, false));
+        dices2.add(new Dice(1, true, false, true, false));
+        dices2.add(new Dice(1, true, false, true, false));
+        dices2.add(new Dice(1, true, false, true, false));
+        int points2 = diceService.calculatePointsForMultiple(dices2);
+
+        //then
+        assertEquals(400, points2);
+    }
+
+    @Test
+    public void testCalculatePointsForMultipleTwo() {
+
+        //given
+        List<Dice> dices3 = new ArrayList<>();
+        dices3.add(new Dice(2, true, false, true, false));
+        dices3.add(new Dice(2, true, false, true, false));
+        dices3.add(new Dice(2, true, false, true, false));
+        dices3.add(new Dice(2, true, false, true, false));
+        dices3.add(new Dice(2, true, false, true, false));
+        int points3 = diceService.calculatePointsForMultiple(dices3);
+
+        //then
+        assertEquals(80, points3);
+    }
+    @Test
+    public void testCalculatePointsForMultipleFive() {
+
+        //given
+        List<Dice> dices3 = new ArrayList<>();
+        dices3.add(new Dice(5, true, false, true, false));
+        int points3 = diceService.calculatePointsForMultiple(dices3);
+
+        //then
+        assertEquals(5, points3);
     }
 }

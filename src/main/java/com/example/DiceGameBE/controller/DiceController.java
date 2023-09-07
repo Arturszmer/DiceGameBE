@@ -13,7 +13,7 @@ import java.util.List;
 public class DiceController {
 
     private final DiceService diceService;
-    @PostMapping("/roll")
+    @PostMapping("/roll-dices")
     public List<Dice> rollDices(@RequestBody int numberOfDicesToRoll) {
         return diceService.rollDices(numberOfDicesToRoll);
     }

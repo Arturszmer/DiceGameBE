@@ -25,7 +25,7 @@ public class Game implements Serializable {
     private Player adminPlayer;
     private Integer currentTurn;
     private LocalDateTime startGameTime;
-    private List<Dice> dices = new ArrayList<>();
+    private GameDices gameDices;
 
     public Game(Player adminPlayer) {
         this.gameId = UUID.randomUUID().toString().replace("-", "");
