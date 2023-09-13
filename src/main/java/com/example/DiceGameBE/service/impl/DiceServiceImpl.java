@@ -14,6 +14,7 @@ import static com.example.DiceGameBE.exceptions.GameErrorResult.BAD_AMOUNT_OF_DI
 @RequiredArgsConstructor
 public class DiceServiceImpl implements DiceService {
 
+
     @Override
     public List<Dice> rollDices(int numberOfDicesToRoll)  {
         validateDicesToRoll(numberOfDicesToRoll);
@@ -21,10 +22,12 @@ public class DiceServiceImpl implements DiceService {
         List<Dice> dices = getNumbersFromRoll(numberOfDicesToRoll);
 
         setAttributes(dices);
-//TODO widze ze jest redis, ale redis jako baza potrzebuje klucza i wartości, czy moge dodac autogenerate id do modelu, czy pomysł jest jakiś inny/
         saveDicesToRedis(dices);
-        getAllPointsFromRoll(dices);
+        getMaxValueFromRoll(dices);
         getTemporaryPoints(dices);
+        calculatePointsForMultiple(dices);
+        countPoints(dices);
+
         return dices;
     }
 
@@ -70,113 +73,100 @@ public class DiceServiceImpl implements DiceService {
     private void saveDicesToRedis(List<Dice> dices){
         for (Dice dice :dices){
             String key = "dice: " + dice.getValue();
-            //TODO czy w Dice nie powinno byc id, aby w redisie była para klucz wartość
             String value = dice.toString();
             HashMapChangeSet redis = new HashMapChangeSet();
             redis.set(key,value);
         }
     }
-/*Metoda przelicza maksymalna ilość punktór w danego wyrzutu*/
-    public int getAllPointsFromRoll (List<Dice> dices){
-           int allPointsFromRoll = 0;
-           for(Dice dice : dices){
-                   int value = dice.getValue();
-                   allPointsFromRoll += value;
-           }
-    return allPointsFromRoll;
+/*Metoda przelicza maksymalna ilość punktów z danego wyrzutu*/
+    public int getMaxValueFromRoll(List<Dice> dices) {
+        int maxValueFromRoll = 0;
+        for (Dice dice : dices) {
+            int value = dice.getValue();
+            if (value == 5) {
+                maxValueFromRoll = 10;
+            } else if (value > maxValueFromRoll) {
+                maxValueFromRoll = value;
+            }
+        }
+        return maxValueFromRoll;
+        }
+    /*Metoda zlicza punkty dla multiple*/
+    private static int calculatePointsForMultiple (List<Dice> dices) {
+        if (dices.get(0).getValue() != 1) {
+            return dices.get(0).getValue() * 10 * (dices.size() - 2);
+        } else {
+            return 10 * (dices.size() - 2) * 10;
+        }
     }
-/*Metoda zlicza punkty tylko z tych które mają na true atrybut isChecked*/
+
+    /*Metoda zlicza punkty tylko z tych które mają na true atrybut isChecked*/
     public int getTemporaryPoints (List<Dice> dices){
         int temporaryPoints = 0;
-        for(Dice dice : dices){
-            if(dice.isChecked()){
-                int value = dice.getValue();
-                temporaryPoints += value;
+
+        List<Dice> checkedArray = dices.stream()
+                .filter( d -> d.isChecked() && !d.isImmutable() && !d.isGoodNumber() && !d.isMultiple())
+                .toList();
+
+        if (!checkedArray.isEmpty()) {
+            temporaryPoints = calculatePointsForMultiple(checkedArray);
+        }
+
+        List<Dice> restDices = dices.stream()
+                .filter(d -> !d.isMultiple() && !d.isImmutable() && d.isChecked())
+                .toList();
+
+        for (Dice dice : restDices) {
+            if (dice.getValue() == 1) {
+                temporaryPoints += 10;
+            } else {
+                temporaryPoints += 5;
             }
         }
         return temporaryPoints;
     }
+    /*Metoda zlicza punkty*/
+    public static int countPoints(List<Dice> dices) {
+        int points = 0;
 
-    /*metoda do dodawania pkt, wiem że można ją uprościć ale tak jest dla mnie bardziej czytelna w następnej fazie ją skróce ale nie jest jeszcze dokończona*/
-    public int calculatePointsForMultiple(List<Dice> dices) {
-        Map<Integer, Integer> valueOccurrences = new HashMap<>();
-        int totalPoints = 0;
+        List<Dice> multipleArray = dices.stream()
+                .filter(d -> d.isMultiple()  &&!d.isImmutable() && !d.isChecked())
+                .toList();
 
-        int value;
-        for (Dice dice : dices) {
-            value = dice.getValue();
-            valueOccurrences.put(value, valueOccurrences.getOrDefault(value, 0) + 1);
+        if (!multipleArray.isEmpty()) {
+            points = calculatePointsForMultiple(multipleArray);
+        }
+        List<Dice> restDices = dices.stream()
+                .filter(d -> !d.isMultiple() && !d.isImmutable() && !d.isChecked())
+                .toList();
 
-            int occurrences = valueOccurrences.get(value);
-            int multiplier = 2;
-
-            int points1 = 100;
-            int points2 = 10;
-            int points3 = 0;
-            int points4 = 20;
-            int points5 = 30;
-            int points6 = 40;
-            int points7 = 50;
-            int points8 = 60;
-            int points9 = 5;
-
-
-            switch (value) {
-                /*case -> wartość wyrzuconej cyfry na kostce max 6*/
-                case 1 -> {
-                    /*dla powtórzeń max 5*/
-                    switch (occurrences) {
-                        case 1, 2 -> totalPoints = points2;
-                        case 3 -> totalPoints = points1;
-                        case 4 -> totalPoints = points1 * multiplier;
-                        case 5 -> totalPoints = points1 * multiplier * multiplier;
-                    }
-                }
-                case 2 -> {
-                    switch (occurrences) {
-                        case 1, 2 -> totalPoints = points3;
-                        case 3 -> totalPoints = points4;
-                        case 4 -> totalPoints = points4 * multiplier;
-                        case 5 -> totalPoints = points4 * multiplier * multiplier;
-                    }
-                }
-                case 3 -> {
-                    switch (occurrences) {
-                        case 1, 2 -> totalPoints = points3;
-                        case 3 -> totalPoints = points5;
-                        case 4 -> totalPoints = points5 * multiplier;
-                        case 5 -> totalPoints = points5 * multiplier * multiplier;
-                    }
-                }
-                case 4 -> {
-                    switch (occurrences) {
-                        case 1, 2 -> totalPoints = points3;
-                        case 3 -> totalPoints = points6;
-                        case 4 -> totalPoints = points6 * multiplier;
-                        case 5 -> totalPoints = points6 * multiplier * multiplier;
-                    }
-                }
-                case 5 -> {
-                    switch (occurrences) {
-                        case 1, 2 -> totalPoints = points9;
-                        case 3 -> totalPoints = points7;
-                        case 4 -> totalPoints = points7 * multiplier;
-                        case 5 -> totalPoints = points7 * multiplier * multiplier;
-                    }
-                }
-                case 6 -> {
-                    switch (occurrences) {
-                        case 1, 2 -> totalPoints = points3;
-                        case 3 -> totalPoints = points8;
-                        case 4 -> totalPoints = points8 * multiplier;
-                        case 5 -> totalPoints = points8 * multiplier * multiplier;
-                    }
-                }
-                default -> {
-                }
+        for (Dice dice : restDices) {
+            if (dice.getValue() == 1) {
+                points += 10;
+            } else {
+                points += 5;
             }
         }
-            return totalPoints;
+        List<Dice> multipleAndCheckedArray =  dices.stream()
+                .filter(d-> d.isMultiple() && d.isChecked())
+                .toList();
+
+        if(!multipleAndCheckedArray.isEmpty()){
+            points = calculatePointsForMultiple(multipleArray);
         }
+
+        List<Dice> restDices2 = dices.stream()
+                .filter(d-> !d.isMultiple() && d.isChecked())
+                .toList();
+
+        for (Dice dice : restDices2){
+            if (dice.getValue() == 1){
+                points +=10;
+            } else
+            {points += 5;
+            }
+        }
+
+        return points;
+    }
 }
-//TODO metoda calculate nie jest dokończona nie działa jeszcze w przypadku 1 i 5
