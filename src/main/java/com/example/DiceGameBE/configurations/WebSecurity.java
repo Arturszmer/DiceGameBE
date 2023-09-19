@@ -21,6 +21,6 @@ public class WebSecurity {
 
     @Bean
     WebSecurityCustomizer webSecurityCustomizer(){
-        return (web -> web.ignoring().requestMatchers("/create-game", "/delete-all-games", "/{game-id}/add-player"));
+        return (web -> web.ignoring().requestMatchers("/create-game", "/delete-all-games", "/{game-id}/add-player", "dice/roll"));
     }
 }
