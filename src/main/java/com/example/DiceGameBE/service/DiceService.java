@@ -1,9 +1,9 @@
 package com.example.DiceGameBE.service;
 
-import com.example.DiceGameBE.model.Dice;
-import java.util.List;
+import com.example.DiceGameBE.dto.RollDicesResult;
+import com.example.DiceGameBE.dto.RollDto;
 
 public interface DiceService {
 
-    List<Dice> rollDices(int numberOfDicesToRoll);
+    RollDicesResult rollDices(RollDto rollDicesResult);
 }

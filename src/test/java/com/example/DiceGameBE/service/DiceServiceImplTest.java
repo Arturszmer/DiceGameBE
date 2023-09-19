@@ -1,40 +1,49 @@
 package com.example.DiceGameBE.service;
 
-import com.example.DiceGameBE.exceptions.GameException;
+import com.example.DiceGameBE.dto.RollDicesResult;
+import com.example.DiceGameBE.dto.RollDto;
 import com.example.DiceGameBE.model.Dice;
+import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.impl.DiceServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.*;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 
 class DiceServiceImplTest {
 
-    @Spy
     private DiceServiceImpl diceService;
+
+    private final GameRepository gameRepositoryMock = mock(GameRepository.class);
+    private final static String GAME_ID = "gameId";
 
     @BeforeEach
     void setup(){
-        MockitoAnnotations.openMocks(this);
+        diceService = new DiceServiceImpl(gameRepositoryMock);
     }
 
-    @ParameterizedTest
-    @ValueSource(ints = {1, 2, 3, 4, 5})
-    public void testRollDice(int numberOfDicesToRoll) {
+    @Test
+    public void should_return_five_dices_with_correct_attributes() {
 
         //given
-        List<Dice> dices = diceService.rollDices(numberOfDicesToRoll);
+        RollDto rollDto = new RollDto(Collections.emptyList(), GAME_ID);
+
+        //when
+        when(gameRepositoryMock.findById(GAME_ID)).thenReturn(Optional.of(new Game()));
+        RollDicesResult rollDicesResult = diceService.rollDices(rollDto);
 
         //then
-        assertEquals(numberOfDicesToRoll, dices.size());
-        for (Dice dice : dices) {
+        assertEquals(5, rollDicesResult.getDices().size());
+        for (Dice dice : rollDicesResult.getDices()) {
             assertTrue(dice.getValue() >= 1 && dice.getValue() <= 6);
             switch (dice.getValue()) {
                 case 1, 5 -> assertTrue(dice.isGoodNumber());
@@ -67,12 +76,4 @@ class DiceServiceImplTest {
         assertTrue(!dices.get(3).isMultiple() && dices.get(3).isGoodNumber());
         assertFalse(dices.get(4).isMultiple() && dices.get(4).isGoodNumber());
     }
-
-    @ParameterizedTest
-    @ValueSource(ints = {0,6,7,8})
-    public void testValidateDicesToRoll(int numberOfDicesToRoll) {
-
-        //then
-        assertThrows(GameException.class, () -> diceService.rollDices(numberOfDicesToRoll));
-        }
 }
