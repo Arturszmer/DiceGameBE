@@ -1,5 +1,6 @@
- package com.example.DiceGameBE.service.impl;
+package com.example.DiceGameBE.service.impl;
 
+import com.example.DiceGameBE.dto.RollDto;
 import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Dice;
 import com.example.DiceGameBE.service.DiceService;
@@ -7,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.crossstore.HashMapChangeSet;
 import org.springframework.stereotype.Service;
 import java.util.*;
+import java.util.stream.Collectors;
+
 
 import static com.example.DiceGameBE.exceptions.GameErrorResult.BAD_AMOUNT_OF_DICES;
 
@@ -16,23 +19,73 @@ public class DiceServiceImpl implements DiceService {
 
 
     @Override
-    public List<Dice> rollDices(int numberOfDicesToRoll)  {
-        validateDicesToRoll(numberOfDicesToRoll);
+    public List<Dice> rollDices(RollDto rollDto)  {
+        validateDicesToRoll(rollDto.numberOfDicesToRoll());
 
-        List<Dice> dices = getNumbersFromRoll(numberOfDicesToRoll);
+        List<Dice> dices = getNumbersFromRoll(rollDto.numberOfDicesToRoll());
 
         setAttributes(dices);
         saveDicesToRedis(dices);
-        getMaxValueFromRoll(dices);
-        getTemporaryPoints(dices);
-        calculatePointsForMultiple(dices);
+        countMultiples(dices);
+        countAllGoodNumbers(dices);
         countPoints(dices);
+        temporaryPoints(dices);
+        allPointsFromRoll(dices);
 
         return dices;
     }
 
+    public int temporaryPoints(List<Dice> dices) {
+        int temporaryPoints =0;
 
-    private static void validateDicesToRoll(int numberOfDicesToRoll) {
+        List<Dice> multiplesArray = dices.stream()
+                .filter(d -> d.isMultiple() && d.isChecked())
+                .collect(Collectors.toList());
+
+        if (!multiplesArray.isEmpty()) {
+            temporaryPoints = countMultiples(multiplesArray);
+        }
+
+        List<Dice> restDices = dices.stream()
+                .filter(d -> !d.isMultiple() && d.isChecked())
+                .toList();
+
+        for (Dice dice : restDices) {
+            if (dice.getValue() == 1) {
+                temporaryPoints += 10;
+            } else if (dice.getValue() == 5) {
+                temporaryPoints += 5;
+            }
+        }
+        return temporaryPoints;
+    }
+
+    public int allPointsFromRoll(List<Dice> dices) {
+        int allPointsFromRoll =0;
+
+        List<Dice> multiplesArray = dices.stream()
+                .filter(Dice::isMultiple)
+                .collect(Collectors.toList());
+
+        if (!multiplesArray.isEmpty()) {
+            allPointsFromRoll = countMultiples(multiplesArray);
+        }
+
+        List<Dice> restDices = dices.stream()
+                .filter(d -> !d.isMultiple())
+                .toList();
+
+        for (Dice dice : restDices) {
+            if (dice.getValue() == 1) {
+                allPointsFromRoll += 10;
+            } else if (dice.getValue() == 5) {
+                allPointsFromRoll += 5;
+            }
+        }
+        return allPointsFromRoll;
+    }
+
+    private void validateDicesToRoll(int numberOfDicesToRoll) {
         if (numberOfDicesToRoll <= 0 || numberOfDicesToRoll >5) {
             throw new GameException(BAD_AMOUNT_OF_DICES);
         }
@@ -69,7 +122,7 @@ public class DiceServiceImpl implements DiceService {
             }
         }
     }
-/*Metoda pomocnicza saveDicesToRedis*/
+
     private void saveDicesToRedis(List<Dice> dices){
         for (Dice dice :dices){
             String key = "dice: " + dice.getValue();
@@ -78,66 +131,20 @@ public class DiceServiceImpl implements DiceService {
             redis.set(key,value);
         }
     }
-/*Metoda przelicza maksymalna ilość punktów z danego wyrzutu*/
-    public int getMaxValueFromRoll(List<Dice> dices) {
-        int maxValueFromRoll = 0;
-        for (Dice dice : dices) {
-            int value = dice.getValue();
-            if (value == 5) {
-                maxValueFromRoll = 10;
-            } else if (value > maxValueFromRoll) {
-                maxValueFromRoll = value;
-            }
-        }
-        return maxValueFromRoll;
-        }
-    /*Metoda zlicza punkty dla multiple*/
-    private static int calculatePointsForMultiple (List<Dice> dices) {
-        if (dices.get(0).getValue() != 1) {
-            return dices.get(0).getValue() * 10 * (dices.size() - 2);
-        } else {
-            return 10 * (dices.size() - 2) * 10;
-        }
-    }
 
-    /*Metoda zlicza punkty tylko z tych które mają na true atrybut isChecked*/
-    public int getTemporaryPoints (List<Dice> dices){
-        int temporaryPoints = 0;
-
-        List<Dice> checkedArray = dices.stream()
-                .filter( d -> d.isChecked() && !d.isImmutable() && !d.isGoodNumber() && !d.isMultiple())
-                .toList();
-
-        if (!checkedArray.isEmpty()) {
-            temporaryPoints = calculatePointsForMultiple(checkedArray);
-        }
-
-        List<Dice> restDices = dices.stream()
-                .filter(d -> !d.isMultiple() && !d.isImmutable() && d.isChecked())
-                .toList();
-
-        for (Dice dice : restDices) {
-            if (dice.getValue() == 1) {
-                temporaryPoints += 10;
-            } else {
-                temporaryPoints += 5;
-            }
-        }
-        return temporaryPoints;
-    }
-    /*Metoda zlicza punkty*/
-    public static int countPoints(List<Dice> dices) {
+    public int countPoints(List<Dice> dices) {
         int points = 0;
 
-        List<Dice> multipleArray = dices.stream()
-                .filter(d -> d.isMultiple()  &&!d.isImmutable() && !d.isChecked())
-                .toList();
+        List<Dice> multiplesArray = dices.stream()
+                .filter(d -> d.isMultiple() && d.isChecked())
+                .collect(Collectors.toList());
 
-        if (!multipleArray.isEmpty()) {
-            points = calculatePointsForMultiple(multipleArray);
+        if (!multiplesArray.isEmpty()) {
+            points = countMultiples(multiplesArray);
         }
+
         List<Dice> restDices = dices.stream()
-                .filter(d -> !d.isMultiple() && !d.isImmutable() && !d.isChecked())
+                .filter(d -> !d.isMultiple() && d.isChecked() && !d.isImmutable())
                 .toList();
 
         for (Dice dice : restDices) {
@@ -147,26 +154,41 @@ public class DiceServiceImpl implements DiceService {
                 points += 5;
             }
         }
-        List<Dice> multipleAndCheckedArray =  dices.stream()
-                .filter(d-> d.isMultiple() && d.isChecked())
-                .toList();
 
-        if(!multipleAndCheckedArray.isEmpty()){
-            points = calculatePointsForMultiple(multipleArray);
+        return points;
+    }
+
+    public int countAllGoodNumbers(List<Dice> dices) {
+        int points = 0;
+
+        List<Dice> multiplesArray = dices.stream()
+                .filter(d -> d.isMultiple() && !d.isImmutable() && !d.isChecked())
+                .collect(Collectors.toList());
+
+        if (!multiplesArray.isEmpty()) {
+            points = countMultiples(multiplesArray);
         }
 
-        List<Dice> restDices2 = dices.stream()
-                .filter(d-> !d.isMultiple() && d.isChecked())
+        List<Dice> restDices = dices.stream()
+                .filter(d -> !d.isMultiple() && !d.isImmutable() && !d.isChecked())
                 .toList();
 
-        for (Dice dice : restDices2){
-            if (dice.getValue() == 1){
-                points +=10;
-            } else
-            {points += 5;
+        for (Dice dice : restDices) {
+            if (dice.getValue() == 1) {
+                points += 10;
+            } else if (dice.getValue() == 5) {
+                points += 5;
             }
         }
 
         return points;
+    }
+
+    public int countMultiples(List<Dice> multiplesArray) {
+        if (multiplesArray.get(0).getValue() != 1) {
+            return multiplesArray.get(0).getValue() * 10 * (multiplesArray.size() - 2);
+        } else {
+            return 10 * (multiplesArray.size() - 2) * 10;
+        }
     }
 }

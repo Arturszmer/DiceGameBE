@@ -1,17 +1,21 @@
 package com.example.DiceGameBE.service;
 
+import com.example.DiceGameBE.dto.RollDto;
 import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Dice;
 import com.example.DiceGameBE.service.impl.DiceServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+import org.junit.jupiter.params.provider.Arguments;
 
 import static com.example.DiceGameBE.exceptions.GameErrorResult.BAD_AMOUNT_OF_DICES;
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,12 +31,16 @@ class DiceServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
+
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3, 4, 5})
     public void testRollDice(int numberOfDicesToRoll) {
 
+        RollDto rollDto = new RollDto(numberOfDicesToRoll, "", true);
+
+
         //given
-        List<Dice> dices = diceService.rollDices(numberOfDicesToRoll);
+        List<Dice> dices = diceService.rollDices(rollDto);
 
         //then
         assertEquals(numberOfDicesToRoll, dices.size());
@@ -74,69 +82,89 @@ class DiceServiceImplTest {
     @ValueSource(ints = {0,6,7,8})
     public void testValidateDicesToRoll(int numberOfDicesToRoll) {
 
-            // then
-        GameException exception = assertThrows(GameException.class, () -> diceService.rollDices(numberOfDicesToRoll));
+        // then
+        GameException exception = assertThrows(GameException.class, () -> diceService.rollDices(new RollDto(numberOfDicesToRoll,"", true)));
         assertEquals(BAD_AMOUNT_OF_DICES.getMessage(), exception.getMessage());
     }
-    @Test
-    public void testCalculatePointsForAllGoodNumber() {
 
-        //given
-        List<Dice> dices3 = new ArrayList<>();
-        dices3.add(new Dice(1, true, false, true, false));
-        dices3.add(new Dice(1, true, false, true, false));
-        dices3.add(new Dice(1, true, false, true, false));
-        dices3.add(new Dice(1, true, false, true, false));
-        dices3.add(new Dice(1, true, false, true, false));
-        int points3 = diceService.countPoints(dices3);
+    @ParameterizedTest
+    @MethodSource("dicesToCount")
+    public void testCalculatePointsForAllGoodNumber(List<Dice> dices, int result) {
+
+        //when
+        int points3 = diceService.countPoints(dices);
 
         //then
-        assertEquals(300, points3);
+        assertEquals(result, points3);
     }
-    @Test
-    public void testCalculatePointsForAllNumbers() {
 
-        //given
-        List<Dice> dices4 = new ArrayList<>();
-        dices4.add(new Dice(1, true, false, false, false));
-        dices4.add(new Dice(5, true, false, false, false));
-        dices4.add(new Dice(2, true, false, true, false));
-        dices4.add(new Dice(2, true, false, true, false));
-        dices4.add(new Dice(2, true, false, true, false));
-        int points4 = diceService.countPoints(dices4);
-
-        //then
-        assertEquals(35, points4);
+    private static Stream<Arguments> dicesToCount(){
+        return Stream.of(
+                Arguments.of(dicesWith20Points(),20),
+                Arguments.of(dicesWith30Points(),30),
+                Arguments.of(dicesWith50Points(),50)
+        );
     }
-    @Test
-    public void testCalculateTemporaryPoints() {
 
-        //given
-        List<Dice> dices5 = new ArrayList<>();
-        dices5.add(new Dice(1, false, true, false, false));
-        dices5.add(new Dice(5, false, true, false, false));
-        dices5.add(new Dice(2, false, false, true, false));
-        dices5.add(new Dice(2, false, false, true, false));
-        dices5.add(new Dice(2, false, false, true, false));
-        int points5 = diceService.getTemporaryPoints(dices5);
+    private static List<Dice> dicesWith20Points() {
+        return List.of(
+                DiceBuilder.aDiceBuilder().withValue(1).withGoodNumber().withChecked().withImmutable().build(),
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(1).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(2).build()
+        );
+    }
 
-        //then
-        assertEquals(15, points5);
+    private static List<Dice> dicesWith30Points(){
+        return List.of(
+                DiceBuilder.aDiceBuilder().withValue(1).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(1).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(2).build()
+        );
+    }
+
+    private static List<Dice> dicesWith50Points() {
+        return List.of(
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().withMultiple().build(),
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().withMultiple().build(),
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().withMultiple().build(),
+                DiceBuilder.aDiceBuilder().withValue(1).withGoodNumber().withChecked().withImmutable().build(),
+                DiceBuilder.aDiceBuilder().withValue(2).build()
+        );
     }
 
     @Test
     public void testShouldAllPointsFromRoll() {
 
         //given
-        List<Dice> dices6 = new ArrayList<>();
-        dices6.add(new Dice(1, false, true, false, false));
-        dices6.add(new Dice(5, false, true, false, false));
-        dices6.add(new Dice(2, true, false, true, false));
-        dices6.add(new Dice(2, true, false, true, false));
-        dices6.add(new Dice(2, true, false, true, false));
-        int points6 = diceService.getMaxValueFromRoll(dices6);
+        List<Dice> dices5 = new ArrayList<>();
+        dices5.add(new Dice(1, false, true, false, false));
+        dices5.add(new Dice(5, false, true, false, false));
+        dices5.add(new Dice(2, true, false, true, false));
+        dices5.add(new Dice(2, true, false, true, false));
+        dices5.add(new Dice(2, true, false, true, false));
+        int points5 = diceService.allPointsFromRoll(dices5);
 
         //then
-        assertEquals(10, points6);
+        assertEquals(35, points5);
+    }
+
+    @Test
+    public void testShouldTemporaryPoints() {
+
+        //given
+        List<Dice> dices6 = new ArrayList<>();
+        dices6.add(new Dice(1, false, false, false, false));
+        dices6.add(new Dice(5, false, false, false, false));
+        dices6.add(new Dice(2, true, true, true, false));
+        dices6.add(new Dice(2, true, true, true, false));
+        dices6.add(new Dice(2, true, true, true, false));
+        int points6 = diceService.temporaryPoints(dices6);
+
+        //then
+        assertEquals(20, points6);
     }
 }

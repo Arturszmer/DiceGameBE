@@ -1,5 +1,6 @@
 package com.example.DiceGameBE.controller;
 
+import com.example.DiceGameBE.dto.RollDto;
 import com.example.DiceGameBE.model.Dice;
 import com.example.DiceGameBE.service.DiceService;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +14,9 @@ import java.util.List;
 public class DiceController {
 
     private final DiceService diceService;
-    @PostMapping("/roll-dices")
-    public List<Dice> rollDices(@RequestBody int numberOfDicesToRoll) {
-        return diceService.rollDices(numberOfDicesToRoll);
+    @PostMapping("/roll")
+    public List<Dice> rollDices(@RequestBody RollDto rollDto) {
+        return diceService.rollDices(rollDto);
     }
 }
 
