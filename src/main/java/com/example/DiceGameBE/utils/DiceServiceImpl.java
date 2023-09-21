@@ -1,8 +1,12 @@
-package com.example.DiceGameBE.service.impl;
+package com.example.DiceGameBE.utils;
 
+import com.example.DiceGameBE.dto.RollDicesResult;
 import com.example.DiceGameBE.dto.RollDto;
+import com.example.DiceGameBE.exceptions.GameErrorResult;
 import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Dice;
+import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.DiceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.crossstore.HashMapChangeSet;
@@ -11,31 +15,69 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-import static com.example.DiceGameBE.exceptions.GameErrorResult.BAD_AMOUNT_OF_DICES;
 
 @Service
 @RequiredArgsConstructor
 public class DiceServiceImpl implements DiceService {
 
+    private final GameRepository repository;
+    private final Random random = new Random();
 
     @Override
-    public List<Dice> rollDices(RollDto rollDto)  {
-        validateDicesToRoll(rollDto.numberOfDicesToRoll());
+    public RollDicesResult rollDices(RollDto rollDto)  {
+        RollDicesResult result = new RollDicesResult();
+        Game game = repository.findById(rollDto.gameId())
+                .orElseThrow(() -> new GameException(GameErrorResult.GAME_NOT_FOUND_EX));
+        if(rollDto.dices().isEmpty() && game.getDices().isEmpty()){
+            getNumbersFromFirstRoll(result.getDices());
+        } else {
+            getNumbersFromRoll(result.getDices());
+        }
 
-        List<Dice> dices = getNumbersFromRoll(rollDto.numberOfDicesToRoll());
+        setAttributes(result.getDices());
+        saveDicesToRedis(result.getDices());
+        countMultiples(result.getDices());
+        countAllGoodNumbers(result.getDices());
+        countPoints(result.getDices());
+        temporaryPoints(result.getDices());
+        allPointsFromRoll(result.getDices());
 
-        setAttributes(dices);
-        saveDicesToRedis(dices);
-        countMultiples(dices);
-        countAllGoodNumbers(dices);
-        countPoints(dices);
-        temporaryPoints(dices);
-        allPointsFromRoll(dices);
-
-        return dices;
+        return result;
+    }
+    public void getNumbersFromFirstRoll(List<Dice> dices) {
+        for (int i = 0; i < 5; i++) {
+            int value = random.nextInt(6) +1;
+            dices.add(new Dice(value));
+        }
     }
 
-    public int temporaryPoints(List<Dice> dices) {
+    public void getNumbersFromRoll(List<Dice> dices) {
+        int dicesToRoll = 5 - dices.size();
+
+        List<Dice> noImmutableArrays = dices.stream()
+                .filter(d -> !d.isImmutable())
+                .toList();
+
+        for (Dice dice : noImmutableArrays) {
+            for (int i = 0; i < noImmutableArrays.size(); i++) {
+                int value = random.nextInt(6) + 1;
+                dices.add(new Dice(value));
+            }
+        }
+
+        List<Dice> immutableArrays = dices.stream()
+                .filter(d -> d.isImmutable() || d.isChecked() && !d.isGoodNumber() && !d.isMultiple())
+                .toList();
+
+        for (Dice dice : immutableArrays) {
+            for (int i = 0; i < dicesToRoll; i++) {
+                int value = random.nextInt(6) + 1;
+                dices.add(new Dice(value));
+            }
+        }
+    }
+
+    public static int temporaryPoints(List<Dice> dices) {
         int temporaryPoints =0;
 
         List<Dice> multiplesArray = dices.stream()
@@ -60,7 +102,7 @@ public class DiceServiceImpl implements DiceService {
         return temporaryPoints;
     }
 
-    public int allPointsFromRoll(List<Dice> dices) {
+    public static int allPointsFromRoll(List<Dice> dices) {
         int allPointsFromRoll =0;
 
         List<Dice> multiplesArray = dices.stream()
@@ -83,22 +125,6 @@ public class DiceServiceImpl implements DiceService {
             }
         }
         return allPointsFromRoll;
-    }
-
-    private void validateDicesToRoll(int numberOfDicesToRoll) {
-        if (numberOfDicesToRoll <= 0 || numberOfDicesToRoll >5) {
-            throw new GameException(BAD_AMOUNT_OF_DICES);
-        }
-    }
-
-    private List<Dice> getNumbersFromRoll(int numberOfDicesToRoll) {
-        Random random = new Random();
-        List<Dice> dices = new ArrayList<>();
-        for (int i = 0; i < numberOfDicesToRoll; i++) {
-            int value = random.nextInt(6) +1;
-            dices.add(new Dice(value));
-        }
-        return dices;
     }
 
     private void setAttributes(List<Dice> dices) {
@@ -132,7 +158,7 @@ public class DiceServiceImpl implements DiceService {
         }
     }
 
-    public int countPoints(List<Dice> dices) {
+    public static int countPoints(List<Dice> dices) {
         int points = 0;
 
         List<Dice> multiplesArray = dices.stream()
@@ -158,7 +184,7 @@ public class DiceServiceImpl implements DiceService {
         return points;
     }
 
-    public int countAllGoodNumbers(List<Dice> dices) {
+    public static int countAllGoodNumbers(List<Dice> dices) {
         int points = 0;
 
         List<Dice> multiplesArray = dices.stream()
@@ -184,7 +210,7 @@ public class DiceServiceImpl implements DiceService {
         return points;
     }
 
-    public int countMultiples(List<Dice> multiplesArray) {
+    public static int countMultiples(List<Dice> multiplesArray) {
         if (multiplesArray.get(0).getValue() != 1) {
             return multiplesArray.get(0).getValue() * 10 * (multiplesArray.size() - 2);
         } else {

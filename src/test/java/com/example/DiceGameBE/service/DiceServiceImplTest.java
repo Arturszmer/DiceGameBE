@@ -1,50 +1,56 @@
 package com.example.DiceGameBE.service;
 
+import com.example.DiceGameBE.dto.RollDicesResult;
 import com.example.DiceGameBE.dto.RollDto;
-import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Dice;
-import com.example.DiceGameBE.service.impl.DiceServiceImpl;
+import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.repository.GameRepository;
+import com.example.DiceGameBE.utils.DiceServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.provider.Arguments;
 
-import static com.example.DiceGameBE.exceptions.GameErrorResult.BAD_AMOUNT_OF_DICES;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 class DiceServiceImplTest {
 
     @Spy
     private DiceServiceImpl diceService;
+    private final GameRepository gameRepositoryMock = mock(GameRepository.class);
+    private final static String GAME_ID = "gameId";
 
     @BeforeEach
     void setup(){
-        MockitoAnnotations.openMocks(this);
+        diceService = new DiceServiceImpl(gameRepositoryMock);
     }
 
 
-    @ParameterizedTest
-    @ValueSource(ints = {1, 2, 3, 4, 5})
-    public void testRollDice(int numberOfDicesToRoll) {
-
-        RollDto rollDto = new RollDto(numberOfDicesToRoll, "", true);
-
+    @Test
+    public void should_return_five_dices_with_correct_attributes() {
 
         //given
-        List<Dice> dices = diceService.rollDices(rollDto);
+        RollDto rollDto = new RollDto(Collections.emptyList(), GAME_ID);
+
+        //when
+        when(gameRepositoryMock.findById(GAME_ID)).thenReturn(Optional.of(new Game()));
+        RollDicesResult rollDicesResult = diceService.rollDices(rollDto);
 
         //then
-        assertEquals(numberOfDicesToRoll, dices.size());
-        for (Dice dice : dices) {
+        assertEquals(5, rollDicesResult.getDices().size());
+        for (Dice dice : rollDicesResult.getDices()) {
             assertTrue(dice.getValue() >= 1 && dice.getValue() <= 6);
             switch (dice.getValue()) {
                 case 1, 5 -> assertTrue(dice.isGoodNumber());
@@ -79,20 +85,11 @@ class DiceServiceImplTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {0,6,7,8})
-    public void testValidateDicesToRoll(int numberOfDicesToRoll) {
-
-        // then
-        GameException exception = assertThrows(GameException.class, () -> diceService.rollDices(new RollDto(numberOfDicesToRoll,"", true)));
-        assertEquals(BAD_AMOUNT_OF_DICES.getMessage(), exception.getMessage());
-    }
-
-    @ParameterizedTest
     @MethodSource("dicesToCount")
     public void testCalculatePointsForAllGoodNumber(List<Dice> dices, int result) {
 
         //when
-        int points3 = diceService.countPoints(dices);
+        int points3 = DiceServiceImpl.countPoints(dices);
 
         //then
         assertEquals(result, points3);
@@ -146,7 +143,7 @@ class DiceServiceImplTest {
         dices5.add(new Dice(2, true, false, true, false));
         dices5.add(new Dice(2, true, false, true, false));
         dices5.add(new Dice(2, true, false, true, false));
-        int points5 = diceService.allPointsFromRoll(dices5);
+        int points5 = DiceServiceImpl.allPointsFromRoll(dices5);
 
         //then
         assertEquals(35, points5);
@@ -162,7 +159,7 @@ class DiceServiceImplTest {
         dices6.add(new Dice(2, true, true, true, false));
         dices6.add(new Dice(2, true, true, true, false));
         dices6.add(new Dice(2, true, true, true, false));
-        int points6 = diceService.temporaryPoints(dices6);
+        int points6 = DiceServiceImpl.temporaryPoints(dices6);
 
         //then
         assertEquals(20, points6);
