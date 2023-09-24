@@ -16,6 +16,11 @@ public class DiceController {
     public RollDicesResult rollDices(@RequestBody RollDto rollDto) {
         return diceService.rollDices(rollDto);
     }
+
+    @PostMapping("check")
+    public RollDicesResult checkDice(@RequestBody RollDto rollDto){
+        return diceService.checkDices(rollDto);
+    }
 }
 
 

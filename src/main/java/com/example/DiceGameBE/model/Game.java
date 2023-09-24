@@ -23,7 +23,8 @@ public class Game implements Serializable {
     private GameStatus gameStatus;
     private List<Player> players = new ArrayList<>();
     private Player adminPlayer;
-    private Integer currentTurn;
+    @Setter(AccessLevel.NONE)
+    private Integer currentTurn = 0;
     private LocalDateTime startGameTime;
     private List<Dice> dices = new ArrayList<>();
 
@@ -33,7 +34,6 @@ public class Game implements Serializable {
         this.gameStatus = GameStatus.OPEN;
         this.adminPlayer = adminPlayer;
         getPlayers().add(adminPlayer);
-        this.currentTurn = 0;
         this.startGameTime = LocalDateTime.now();
     }
 
@@ -59,5 +59,17 @@ public class Game implements Serializable {
         if(isPlayerUnique){
             throw new GameException(UNIQUE_PLAYER_NAME_EX, player.getName());
         }
+    }
+
+    public void nextTurn() {
+        currentTurn++;
+        if(currentTurn == players.size()){
+            currentTurn = 0;
+        }
+        getCurrentPlayer().getValidations().setRolling(true);
+    }
+
+    public Player getCurrentPlayer() {
+        return players.get(currentTurn);
     }
 }

@@ -19,10 +19,18 @@ public class Dice implements Serializable {
     private boolean isChecked;
     @JsonProperty(value = "isMultiple")
     private boolean isMultiple;
-    @JsonProperty(value = "isImmutable ")
+    @JsonProperty(value = "isImmutable")
     private boolean isImmutable;
 
     public Dice(Integer value) {
         this.value = value;
+    }
+
+    public void insertNewValueFromRoll(int value){
+        this.value = value;
+        this.isGoodNumber = false;
+        this.isChecked = false;
+        this.isMultiple = false;
+        this.isImmutable = false;
     }
 }
