@@ -4,6 +4,7 @@ import com.example.DiceGameBE.dto.RollDicesResult;
 import com.example.DiceGameBE.dto.RollDto;
 import com.example.DiceGameBE.model.Dice;
 import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.model.Player;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.impl.DiceServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,10 +36,13 @@ class DiceServiceImplTest {
     public void should_return_five_dices_with_correct_attributes() {
 
         //given
-        RollDto rollDto = new RollDto(Collections.emptyList(), GAME_ID);
+        RollDto rollDto = new RollDto(new ArrayList<>(), GAME_ID);
+        Game game = GameBuilder.aGameBuilder()
+                .withPlayers(List.of(new Player(0, "Player")))
+                .build();
 
         //when
-        when(gameRepositoryMock.findById(GAME_ID)).thenReturn(Optional.of(new Game()));
+        when(gameRepositoryMock.findById(GAME_ID)).thenReturn(Optional.of(game));
         RollDicesResult rollDicesResult = diceService.rollDices(rollDto);
 
         //then
