@@ -1,6 +1,5 @@
 package com.example.DiceGameBE.dto;
 
-
 import com.example.DiceGameBE.model.Dice;
 
 import java.util.List;

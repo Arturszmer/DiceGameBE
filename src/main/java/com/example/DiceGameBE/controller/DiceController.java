@@ -12,9 +12,15 @@ import org.springframework.web.bind.annotation.*;
 public class DiceController {
 
     private final DiceService diceService;
-
     @PostMapping("/roll")
     public RollDicesResult rollDices(@RequestBody RollDto rollDto) {
         return diceService.rollDices(rollDto);
     }
+
+    @PostMapping("check")
+    public RollDicesResult checkDice(@RequestBody RollDto rollDto){
+        return diceService.checkDices(rollDto);
+    }
 }
+
+

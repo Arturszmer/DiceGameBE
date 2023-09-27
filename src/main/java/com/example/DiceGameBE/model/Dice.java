@@ -25,4 +25,12 @@ public class Dice implements Serializable {
     public Dice(Integer value) {
         this.value = value;
     }
+
+    public void insertNewValueFromRoll(int value){
+        this.value = value;
+        this.isGoodNumber = false;
+        this.isChecked = false;
+        this.isMultiple = false;
+        this.isImmutable = false;
+    }
 }

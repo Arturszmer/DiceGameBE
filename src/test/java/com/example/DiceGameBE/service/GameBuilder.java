@@ -44,7 +44,6 @@ class GameBuilder {
         game.setGameId(gameId);
         game.setGameStatus(gameStatus);
         game.setAdminPlayer(adminPlayer);
-        game.setCurrentTurn(0);
         game.setStartGameTime(LocalDateTime.now());
         game.getPlayers().addAll(players);
         return game;
