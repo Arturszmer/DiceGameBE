@@ -16,8 +16,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Endpoint po którym front łączy sę z BE
-        registry.addEndpoint("/game-connection")
+        registry.addEndpoint("/ws")
                 .setAllowedOrigins(domain, domain + "/*")
                 .withSockJS();
     }
@@ -25,6 +24,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/game");
+        registry.enableSimpleBroker("/topic");
     }
 }
