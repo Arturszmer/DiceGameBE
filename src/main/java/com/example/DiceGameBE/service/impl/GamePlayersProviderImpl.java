@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.example.DiceGameBE.utils.MessageContents.GAME_ERROR_NOT_FOUND_OR_FINISHED;
 import static com.example.DiceGameBE.utils.MessageTypes.*;
 
 @RequiredArgsConstructor
@@ -41,10 +40,7 @@ public class GamePlayersProviderImpl implements GamePlayersProvider {
 
         Optional<Game> gameOpt = repository.findById(message.getGameId());
         if(gameOpt.isEmpty() || gameOpt.get().getGameStatus() == GameStatus.FINISHED){
-            return GameMessage.builder()
-                    .type(ERROR.name())
-                    .content(GAME_ERROR_NOT_FOUND_OR_FINISHED.name())
-                    .build();
+            return MessageMapper.errorMessage();
         }
 
         Game game = gameOpt.get();
