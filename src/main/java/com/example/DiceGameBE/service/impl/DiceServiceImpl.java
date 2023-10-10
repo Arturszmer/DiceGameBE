@@ -2,10 +2,14 @@
 
 import com.example.DiceGameBE.dto.RollDicesResult;
 import com.example.DiceGameBE.dto.RollDto;
+import com.example.DiceGameBE.dto.message.DiceMessage;
+import com.example.DiceGameBE.dto.message.GameMessage;
+import com.example.DiceGameBE.dto.message.MessageMapper;
 import com.example.DiceGameBE.exceptions.GameErrorResult;
 import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Dice;
 import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.model.Validations;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.DiceService;
@@ -13,7 +17,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
- @Service
+import static com.example.DiceGameBE.dto.message.MessageMapper.*;
+import static com.example.DiceGameBE.utils.MessageContents.*;
+import static com.example.DiceGameBE.utils.MessageTypes.*;
+
+@Service
 @RequiredArgsConstructor
 public class DiceServiceImpl implements DiceService {
 
@@ -34,12 +42,13 @@ public class DiceServiceImpl implements DiceService {
 
             //TODO: oblczanie punktów dla całego rzutu
 
-            possibilityToNextRoll(result.getDices(), game);
         } else {
             //TODO: obliczenia punktów dla isChecked
             getNumbersFromRoll(result.getDices());
-            possibilityToNextRoll(result.getDices(), game);
         }
+
+        checkPossibilityToNextRoll(result.getDices(), game);
+
         //TODO: dodać funkcje liczącą punkty
         game.setDices(result.getDices());
         result.setPlayer(game.getCurrentPlayer());
@@ -49,12 +58,37 @@ public class DiceServiceImpl implements DiceService {
     }
 
      @Override
+     public GameMessage rollDices(DiceMessage message) {
+
+         Optional<Game> gameOpt = repository.findById(message.getGameId());
+
+         if(gameOpt.isEmpty() || gameOpt.get().getGameStatus() == GameStatus.FINISHED){
+             return MessageMapper.errorMessage();
+         }
+
+         Game game = gameOpt.get();
+         List<Dice> dices = message.getDices();
+
+         if(dices.isEmpty()){
+             getNumbersFromFirstRoll(dices);
+             checkPossibilityToNextRoll(dices, game);
+         } else {
+             getNumbersFromRoll(dices);
+             checkPossibilityToNextRoll(dices, game);
+         }
+         game.setDices(dices);
+         repository.save(game);
+
+         return gameToMessage(game, GAME_ROLL);
+     }
+
+     @Override
      public RollDicesResult checkDices(RollDto rollDto) {
          RollDicesResult result = new RollDicesResult(rollDto.dices());
          Game game = repository.findById(rollDto.gameId())
                  .orElseThrow(() -> new GameException(GameErrorResult.GAME_NOT_FOUND_EX));
 
-         possibilityToNextRoll(result.getDices(), game);
+         checkPossibilityToNextRoll(result.getDices(), game);
          //TODO: obliczenie temporary points
          game.setDices(result.getDices());
          result.setPlayer(game.getCurrentPlayer());
@@ -63,17 +97,35 @@ public class DiceServiceImpl implements DiceService {
         return result;
      }
 
-     private void possibilityToNextRoll(List<Dice> dices, Game game) {
+     @Override
+     public GameMessage checkDices(DiceMessage message) {
+         Optional<Game> gameOpt = repository.findById(message.getGameId());
+         if(gameOpt.isEmpty() || gameOpt.get().getGameStatus() == GameStatus.FINISHED){
+             return GameMessage.builder()
+                     .type(ERROR.getType())
+                     .content(GAME_ERROR_NOT_FOUND_OR_FINISHED.name())
+                     .build();
+         }
+         Game game = gameOpt.get();
+         List<Dice> dices = message.getDices();
+
+         checkPossibilityToNextRoll(dices, game);
+
+         game.setDices(dices);
+         repository.save(game);
+
+         GameMessage gameMessage = gameToMessage(game);
+         gameMessage.setType(GAME_CHECK.getType());
+
+         return gameMessage;
+     }
+
+     private void checkPossibilityToNextRoll(List<Dice> dices, Game game) {
 
          Validations validations = game.getCurrentPlayer().getValidations();
-
-         if(dices.stream().filter(dice -> dice.isGoodNumber() && !dice.isImmutable()).toList().isEmpty()){
-             validations.setRolling(false);
-             validations.setNextPlayer(true);
-         } else {
-             validations.setRolling(true);
-             validations.setNextPlayer(false);
-         }
+         boolean canRoll = !dices.stream().filter(dice -> dice.isGoodNumber() && !dice.isImmutable()).toList().isEmpty();
+         validations.setRolling(canRoll);
+         validations.setNextPlayer(!canRoll);
      }
 
      private void getNumbersFromFirstRoll(List<Dice> dices) {

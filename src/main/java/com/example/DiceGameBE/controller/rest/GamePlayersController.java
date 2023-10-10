@@ -1,4 +1,4 @@
-package com.example.DiceGameBE.controller;
+package com.example.DiceGameBE.controller.rest;
 
 import com.example.DiceGameBE.dto.NewPlayerDto;
 import com.example.DiceGameBE.model.Game;
@@ -19,7 +19,7 @@ public class GamePlayersController {
     @PostMapping("/{game-id}/add-player")
     public ResponseEntity<Game> addPlayer(@PathVariable("game-id") String gameId,
                                           @RequestBody NewPlayerDto playerName){
-        Game game = gamePlayersProvider.addPlayerToOpenGame(playerName, gameId);
+        Game game = gamePlayersProvider.joinToOpenGame(playerName, gameId);
         return ResponseEntity.ok(game);
     }
 }
