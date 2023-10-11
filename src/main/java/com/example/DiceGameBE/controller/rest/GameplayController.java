@@ -1,4 +1,4 @@
-package com.example.DiceGameBE.controller;
+package com.example.DiceGameBE.controller.rest;
 
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.service.GameplayService;

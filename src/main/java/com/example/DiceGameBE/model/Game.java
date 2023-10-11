@@ -1,7 +1,11 @@
 package com.example.DiceGameBE.model;
 
 import com.example.DiceGameBE.exceptions.GameException;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.AccessLevel;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
@@ -72,5 +76,22 @@ public class Game implements Serializable {
 
     public Player getCurrentPlayer() {
         return players.get(currentTurn);
+    }
+
+    public Player getPlayerByName(String playerName) {
+        return this.players.stream()
+                .filter(player -> player.getName().equals(playerName))
+                .findFirst()
+                .orElseThrow(() -> new GameException(PLAYER_DOES_NOT_EXIST, playerName));
+    }
+
+    public void removePlayerByName(String playerName) {
+        Player currentPlayer = getCurrentPlayer();
+        if(currentPlayer != null && currentPlayer.getName().equals(playerName)){
+            players.removeIf(player -> player.getName().equals(playerName));
+            nextTurn();
+        } else {
+            players.removeIf(player -> player.getName().equals(playerName));
+        }
     }
 }

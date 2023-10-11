@@ -13,7 +13,8 @@ public enum GameErrorResult {
     ADD_PLAYER_TO_NOT_OPEN_GAME_EX(HttpStatus.BAD_REQUEST, "you cannot add players because game is finished"),
     UNIQUE_PLAYER_NAME_EX(HttpStatus.BAD_REQUEST, "Your player name: %s, is not unique in this game"),
     PLAYER_NAME_MIN_LENGTH(HttpStatus.BAD_REQUEST, "The minimal name length is 3, you have only entered %d letters"),
-    BAD_AMOUNT_OF_DICES(HttpStatus.BAD_REQUEST, "The correct number of dice rolls is min 1 - max 5");
+    BAD_AMOUNT_OF_DICES(HttpStatus.BAD_REQUEST, "The correct number of dice rolls is min 1 - max 5"),
+    PLAYER_DOES_NOT_EXIST(HttpStatus.BAD_REQUEST, "Player with name $s does not exist");
 
     private final HttpStatus status;
     private final String message;

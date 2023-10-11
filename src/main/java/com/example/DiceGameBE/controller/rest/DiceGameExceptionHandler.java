@@ -1,4 +1,4 @@
-package com.example.DiceGameBE.controller;
+package com.example.DiceGameBE.controller.rest;
 
 import com.example.DiceGameBE.exceptions.GameErrorResponseDto;
 import com.example.DiceGameBE.exceptions.GameException;

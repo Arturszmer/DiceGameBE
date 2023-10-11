@@ -39,7 +39,7 @@ public class GamePlayersProviderTest {
         //when
         when(repository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
 
-        playersProvider.addPlayerToOpenGame(new NewPlayerDto("user"), GAME_ID);
+        playersProvider.joinToOpenGame(new NewPlayerDto("user"), GAME_ID);
 
         //then
         assert game != null;
@@ -58,7 +58,7 @@ public class GamePlayersProviderTest {
         when(repository.findById(GAME_ID)).thenReturn(Optional.of(game));
 
         // then
-        assertThrows(RuntimeException.class, () -> playersProvider.addPlayerToOpenGame(new NewPlayerDto("user"), GAME_ID));
+        assertThrows(RuntimeException.class, () -> playersProvider.joinToOpenGame(new NewPlayerDto("user"), GAME_ID));
 
     }
 
@@ -73,7 +73,7 @@ public class GamePlayersProviderTest {
 
         // then
         assertThrows(exception,
-                () -> playersProvider.addPlayerToOpenGame(player, GAME_ID));
+                () -> playersProvider.joinToOpenGame(player, GAME_ID));
     }
 
     private static Stream<Arguments> checkExceptionsForAddPlayerMethod(){
