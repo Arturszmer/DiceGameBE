@@ -1,7 +1,7 @@
 package com.example.DiceGameBE.service;
 
-import com.example.DiceGameBE.dto.RollDicesResult;
-import com.example.DiceGameBE.dto.RollDto;
+import com.example.DiceGameBE.dto.message.DiceMessage;
+import com.example.DiceGameBE.dto.message.GameMessage;
 import com.example.DiceGameBE.model.Dice;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.Player;
@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.DiceGameBE.utils.MessageTypes.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -36,18 +37,18 @@ class DiceServiceImplTest {
     public void should_return_five_dices_with_correct_attributes() {
 
         //given
-        RollDto rollDto = new RollDto(new ArrayList<>(), GAME_ID);
+        DiceMessage diceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, new ArrayList<>());
         Game game = GameBuilder.aGameBuilder()
                 .withPlayers(List.of(new Player(0, "Player")))
                 .build();
 
         //when
-        when(gameRepositoryMock.findById(GAME_ID)).thenReturn(Optional.of(game));
-        RollDicesResult rollDicesResult = diceService.rollDices(rollDto);
+        when(gameRepositoryMock.findById(any())).thenReturn(Optional.of(game));
+        GameMessage gameMessage = diceService.rollDices(diceMessage);
 
         //then
-        assertEquals(5, rollDicesResult.getDices().size());
-        for (Dice dice : rollDicesResult.getDices()) {
+        assertEquals(5, gameMessage.getGame().getDices().size());
+        for (Dice dice : gameMessage.getGame().getDices()) {
             assertTrue(dice.getValue() >= 1 && dice.getValue() <= 6);
             switch (dice.getValue()) {
                 case 1, 5 -> assertTrue(dice.isGoodNumber());
