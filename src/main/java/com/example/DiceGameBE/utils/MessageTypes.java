@@ -13,7 +13,8 @@ public enum MessageTypes {
     GAME_LEAVE("game.leave"),
     GAME_ROLL("game.roll"),
     GAME_CHECK("game.check"),
-    GAME_CLOSED("game.closed");
+    GAME_CLOSED("game.closed"),
+    GAME_TURN_CHANGED("game.turn-changed");
 
     private final String type;
 
