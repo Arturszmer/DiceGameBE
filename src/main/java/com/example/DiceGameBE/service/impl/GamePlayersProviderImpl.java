@@ -36,7 +36,7 @@ public class GamePlayersProviderImpl implements GamePlayersProvider {
     }
 
     @Override
-    public GameMessage leaveGame(LeaveMessage message, String playerName) {
+    public GameMessage leaveGame(SimpMessage message, String playerName) {
 
         Optional<Game> gameOpt = repository.findById(message.getGameId());
         if(gameOpt.isEmpty() || gameOpt.get().getGameStatus() == GameStatus.FINISHED){

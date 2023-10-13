@@ -1,12 +1,8 @@
  package com.example.DiceGameBE.service.impl;
 
-import com.example.DiceGameBE.dto.RollDicesResult;
-import com.example.DiceGameBE.dto.RollDto;
 import com.example.DiceGameBE.dto.message.DiceMessage;
 import com.example.DiceGameBE.dto.message.GameMessage;
 import com.example.DiceGameBE.dto.message.MessageMapper;
-import com.example.DiceGameBE.exceptions.GameErrorResult;
-import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Dice;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
@@ -27,35 +23,6 @@ public class DiceServiceImpl implements DiceService {
 
      private final GameRepository repository;
      private final Random random = new Random();
-
-
-    @Override
-    public RollDicesResult rollDices(RollDto rollDto)  {
-
-        RollDicesResult result = new RollDicesResult(rollDto.dices());
-
-        Game game = repository.findById(rollDto.gameId())
-                .orElseThrow(() -> new GameException(GameErrorResult.GAME_NOT_FOUND_EX));
-
-        if(result.getDices().isEmpty() && game.getDices().isEmpty()){
-            getNumbersFromFirstRoll(result.getDices());
-
-            //TODO: oblczanie punktów dla całego rzutu
-
-        } else {
-            //TODO: obliczenia punktów dla isChecked
-            getNumbersFromRoll(result.getDices());
-        }
-
-        checkPossibilityToNextRoll(result.getDices(), game);
-
-        //TODO: dodać funkcje liczącą punkty
-        game.setDices(result.getDices());
-        result.setPlayer(game.getCurrentPlayer());
-        repository.save(game);
-
-        return result;
-    }
 
      @Override
      public GameMessage rollDices(DiceMessage message) {
@@ -80,21 +47,6 @@ public class DiceServiceImpl implements DiceService {
          repository.save(game);
 
          return gameToMessage(game, GAME_ROLL);
-     }
-
-     @Override
-     public RollDicesResult checkDices(RollDto rollDto) {
-         RollDicesResult result = new RollDicesResult(rollDto.dices());
-         Game game = repository.findById(rollDto.gameId())
-                 .orElseThrow(() -> new GameException(GameErrorResult.GAME_NOT_FOUND_EX));
-
-         checkPossibilityToNextRoll(result.getDices(), game);
-         //TODO: obliczenie temporary points
-         game.setDices(result.getDices());
-         result.setPlayer(game.getCurrentPlayer());
-         repository.save(game);
-
-        return result;
      }
 
      @Override

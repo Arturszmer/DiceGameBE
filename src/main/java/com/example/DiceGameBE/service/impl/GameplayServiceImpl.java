@@ -1,12 +1,17 @@
 package com.example.DiceGameBE.service.impl;
 
-import com.example.DiceGameBE.exceptions.GameErrorResult;
-import com.example.DiceGameBE.exceptions.GameException;
+import com.example.DiceGameBE.dto.message.GameMessage;
+import com.example.DiceGameBE.dto.message.Message;
+import com.example.DiceGameBE.dto.message.MessageMapper;
 import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.GameplayService;
+import com.example.DiceGameBE.utils.MessageTypes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -15,14 +20,23 @@ public class GameplayServiceImpl implements GameplayService {
     private final GameRepository gameRepository;
 
     @Override
-    public Game nextPlayer(String gameId) {
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new GameException(GameErrorResult.GAME_NOT_FOUND_EX));
+    public GameMessage nextPlayer(Message message) {
+        Optional<Game> gameOpt = gameRepository.findById(message.getGameId());
+
+        if(gameOpt.isEmpty() || gameOpt.get().getGameStatus() == GameStatus.FINISHED){
+            return MessageMapper.errorMessage();
+        }
+
+        Game game = gameOpt.get();
 
         game.getCurrentPlayer().getValidations().setAllFalse();
         game.nextTurn();
         game.getDices().clear();
 
-        return gameRepository.save(game);
+        gameRepository.save(game);
+
+        return MessageMapper.gameToMessage(game,
+                "Next player is: " + game.getCurrentPlayer().getName(),
+                MessageTypes.GAME_TURN_CHANGED);
     }
 }

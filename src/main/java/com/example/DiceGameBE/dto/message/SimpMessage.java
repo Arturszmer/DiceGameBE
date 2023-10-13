@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LeaveMessage implements Message {
+public class SimpMessage implements Message {
 
     private String type;
     private String gameId;

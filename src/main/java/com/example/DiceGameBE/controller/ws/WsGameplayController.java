@@ -4,6 +4,7 @@ import com.example.DiceGameBE.dto.message.*;
 import com.example.DiceGameBE.service.DiceService;
 import com.example.DiceGameBE.service.GameCreatorService;
 import com.example.DiceGameBE.service.GamePlayersProvider;
+import com.example.DiceGameBE.service.GameplayService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -21,17 +22,19 @@ public class WsGameplayController {
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final GameCreatorService gameCreatorService;
     private final GamePlayersProvider gamePlayersProvider;
+    private final GameplayService gameplayService;
     private final DiceService diceService;
     private final String DESTINATION_CONST;
 
     public WsGameplayController(SimpMessagingTemplate simpMessagingTemplate,
                                 GameCreatorService gameCreatorService,
                                 GamePlayersProvider gamePlayersProvider,
-                                DiceService diceService,
+                                GameplayService gameplayService, DiceService diceService,
                                 @Value("${topic.basePath}") String destinationPath) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.gameCreatorService = gameCreatorService;
         this.gamePlayersProvider = gamePlayersProvider;
+        this.gameplayService = gameplayService;
         this.diceService = diceService;
         this.DESTINATION_CONST = destinationPath;
     }
@@ -47,7 +50,7 @@ public class WsGameplayController {
     }
 
     @MessageMapping("/game.leave")
-    public void leaveGame(@Payload LeaveMessage message,
+    public void leaveGame(@Payload SimpMessage message,
                           SimpMessageHeaderAccessor headerAccessor){
         String playerName = (String) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get(PLAYER.getName());
         GameMessage gameMessage = gamePlayersProvider.leaveGame(message, playerName);
@@ -63,10 +66,14 @@ public class WsGameplayController {
 
     @MessageMapping("/game.check")
     public void checkDice(@Payload DiceMessage message){
-        //TODO: do poprawnej implementacji
         GameMessage gameMessage = diceService.checkDices(message);
         this.simpMessagingTemplate.convertAndSend(DESTINATION_CONST + gameMessage.getGameId(), gameMessage);
     }
 
+    @MessageMapping("/game.next-player")
+    public void nextPlayer(@Payload SimpMessage message){
+        GameMessage gameMessage = gameplayService.nextPlayer(message);
+        this.simpMessagingTemplate.convertAndSend(DESTINATION_CONST + gameMessage.getGameId(), gameMessage);
+    }
 
 }

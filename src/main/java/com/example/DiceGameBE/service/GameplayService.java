@@ -1,8 +1,9 @@
 package com.example.DiceGameBE.service;
 
-import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.dto.message.GameMessage;
+import com.example.DiceGameBE.dto.message.Message;
 
 public interface GameplayService {
 
-    Game nextPlayer(String gameId);
+    GameMessage nextPlayer(Message gameId);
 }
