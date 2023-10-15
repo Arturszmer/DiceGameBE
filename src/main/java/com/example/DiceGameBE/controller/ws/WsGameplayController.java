@@ -58,15 +58,19 @@ public class WsGameplayController {
     }
 
     @MessageMapping("/game.roll")
-    public void rollDices(@Payload DiceMessage message){
-        GameMessage gameMessage = diceService.rollDices(message);
+    public void rollDices(@Payload DiceMessage message,
+                          SimpMessageHeaderAccessor headerAccessor){
+        String playerName = (String) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get(PLAYER.getName());
+        GameMessage gameMessage = diceService.rollDices(message, playerName);
         simpMessagingTemplate.convertAndSend(DESTINATION_CONST + gameMessage.getGameId(), gameMessage);
     }
 
 
     @MessageMapping("/game.check")
-    public void checkDice(@Payload DiceMessage message){
-        GameMessage gameMessage = diceService.checkDices(message);
+    public void checkDice(@Payload DiceMessage message,
+                          SimpMessageHeaderAccessor headerAccessor){
+        String playerName = (String) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get(PLAYER.getName());
+        GameMessage gameMessage = diceService.checkDices(message, playerName);
         this.simpMessagingTemplate.convertAndSend(DESTINATION_CONST + gameMessage.getGameId(), gameMessage);
     }
 

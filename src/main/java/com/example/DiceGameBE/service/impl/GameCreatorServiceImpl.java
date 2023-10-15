@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 import static com.example.DiceGameBE.assemblers.PlayerAssembler.toEntity;
+import static com.example.DiceGameBE.utils.MessageContents.*;
 import static com.example.DiceGameBE.utils.MessageTypes.GAME_CREATED;
 
 @Service
@@ -38,7 +39,7 @@ public class GameCreatorServiceImpl implements GameCreatorService {
 
         Optional<Game> gameOpt = gameRepository.findById(message.getGameId());
         if(gameOpt.isEmpty() || gameOpt.get().getGameStatus() == GameStatus.FINISHED){
-            return MessageMapper.errorMessage();
+            return MessageMapper.errorMessage(GAME_ERROR_NOT_FOUND_OR_FINISHED);
         }
 
         Game game = gameOpt.get();

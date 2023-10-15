@@ -1,9 +1,9 @@
 package com.example.DiceGameBE.dto.message;
 
 import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.utils.MessageContents;
 import com.example.DiceGameBE.utils.MessageTypes;
 
-import static com.example.DiceGameBE.utils.MessageContents.GAME_ERROR_NOT_FOUND_OR_FINISHED;
 import static com.example.DiceGameBE.utils.MessageTypes.ERROR;
 
 public class MessageMapper {
@@ -48,10 +48,10 @@ public class MessageMapper {
                 .build();
     }
 
-    public static GameMessage errorMessage(){
+    public static GameMessage errorMessage(MessageContents content){
         return GameMessage.builder()
                 .type(ERROR.getType())
-                .content(GAME_ERROR_NOT_FOUND_OR_FINISHED.getContent())
+                .content(content.getContent())
                 .build();
     }
 }
