@@ -68,6 +68,7 @@ class DiceServiceImplTest {
 
     @Test
     public void should_return_message_with_error_when_player_who_roll_is_not_current_player() {
+
         // given
         String currentPlayerName = "PLAYER2";
         DiceMessage diceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, new ArrayList<>());
@@ -86,6 +87,7 @@ class DiceServiceImplTest {
 
     @Test
     public void should_return_error_message_when_game_is_finished() {
+
         // given
         DiceMessage diceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, new ArrayList<>());
         prepareSimpleGame(FINISHED);
@@ -100,6 +102,7 @@ class DiceServiceImplTest {
 
     @Test
     public void should_roll_part_of_dices_and_not_change_kept_dices() {
+
         // given
         List<Dice> dices = getDices(DiceModels.allFalseDices(2, 2, 3));
         DiceMessage diceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, dices);
@@ -119,6 +122,7 @@ class DiceServiceImplTest {
 
     @Test
     public void should_roll_all_dices_when_all_values_is_good_number_and_checked_or_immutable() {
+
         // given
         List<Dice> dices = getDices(getMultipleDicesByValue(3, true));
         DiceMessage diceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, dices);
@@ -137,6 +141,7 @@ class DiceServiceImplTest {
 
     @Test
     public void should_add_correct_attributes() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
         // given
         List<Dice> dices = List.of(
                 new Dice(2), new Dice(2), new Dice(2), new Dice(5), new Dice(6)
@@ -156,6 +161,7 @@ class DiceServiceImplTest {
 
     @Test
     public void should_check_number_and_has_possibility_to_next_roll() {
+
         // given
         List<Dice> dices = UtilsTests.setDicesAttributes(DiceModels.allFalseDices(1, 2, 1, 3, 5));
         dices.get(0).setChecked(true);
@@ -167,7 +173,25 @@ class DiceServiceImplTest {
 
         // then
         assertTrue(gameMessage.getGame().getCurrentPlayer().getValidations().isRolling());
+    }
 
+    @Test
+    public void should_return_message_with_error_when_player_who_checked_is_not_current_player() {
+
+        // given
+        String currentPlayerName = "PLAYER2";
+        DiceMessage diceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, new ArrayList<>());
+        Game game = GameBuilder.aGameBuilder()
+                .withPlayers(List.of(new Player(0, GAME_OWNER), new Player(1, currentPlayerName)))
+                .build();
+        game.nextTurn();
+        when(gameRepositoryMock.findById(any())).thenReturn(Optional.of(game));
+
+        // when
+        GameMessage gameMessage = diceService.checkDices(diceMessage, GAME_OWNER);
+
+        // then
+        assertEquals(ErrorContents.GAME_ERROR_BAD_OWNER.getContent(GAME_OWNER), gameMessage.getContent());
     }
 
     private void prepareSimpleGame(GameStatus status) {
