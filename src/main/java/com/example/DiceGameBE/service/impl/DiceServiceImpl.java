@@ -5,16 +5,16 @@ import com.example.DiceGameBE.dto.message.GameMessage;
 import com.example.DiceGameBE.dto.message.MessageMapper;
 import com.example.DiceGameBE.model.Dice;
 import com.example.DiceGameBE.model.Game;
-import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.model.Validations;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.DiceService;
+import com.example.DiceGameBE.utils.GameValidations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static com.example.DiceGameBE.dto.message.MessageMapper.*;
-import static com.example.DiceGameBE.utils.MessageContents.*;
+import static com.example.DiceGameBE.utils.ErrorContents.*;
 import static com.example.DiceGameBE.utils.MessageTypes.*;
 
 @Service
@@ -25,52 +25,70 @@ public class DiceServiceImpl implements DiceService {
      private final Random random = new Random();
 
      @Override
-     public GameMessage rollDices(DiceMessage message) {
+     public GameMessage rollDices(DiceMessage message, String owner) {
 
          Optional<Game> gameOpt = repository.findById(message.getGameId());
 
-         if(gameOpt.isEmpty() || gameOpt.get().getGameStatus() == GameStatus.FINISHED){
-             return MessageMapper.errorMessage();
-         }
+         if(gameOpt.isPresent() && GameValidations.gameStatusValid(gameOpt.get())){
+             Game game = gameOpt.get();
 
-         Game game = gameOpt.get();
-         List<Dice> dices = message.getDices();
+             if(GameValidations.gameOwnerInvalid(game, owner)){
+                 return MessageMapper.errorMessage(GAME_ERROR_BAD_OWNER.getContent(owner));
+             }
 
-         if(dices.isEmpty()){
-             getNumbersFromFirstRoll(dices);
-             checkPossibilityToNextRoll(dices, game);
+             List<Dice> dices = message.getDices();
+
+             manageDicesFromRoll(dices, game);
+             game.setDices(dices);
+             repository.save(game);
+
+             return gameToMessage(game, GAME_ROLL);
          } else {
-             getNumbersFromRoll(dices);
-             checkPossibilityToNextRoll(dices, game);
+             return MessageMapper.errorMessage(GAME_ERROR_NOT_FOUND_OR_FINISHED.getContent(message.getGameId()));
          }
-         game.setDices(dices);
-         repository.save(game);
-
-         return gameToMessage(game, GAME_ROLL);
      }
 
-     @Override
-     public GameMessage checkDices(DiceMessage message) {
+
+
+    @Override
+     public GameMessage checkDices(DiceMessage message, String owner) {
          Optional<Game> gameOpt = repository.findById(message.getGameId());
-         if(gameOpt.isEmpty() || gameOpt.get().getGameStatus() == GameStatus.FINISHED){
+         if(gameOpt.isPresent() && GameValidations.gameStatusValid(gameOpt.get())){
+
+             Game game = gameOpt.get();
+
+             if(GameValidations.gameOwnerInvalid(game, owner)){
+                 return MessageMapper.errorMessage(GAME_ERROR_BAD_OWNER.getContent(owner));
+             }
+
+             List<Dice> dices = message.getDices();
+
+             checkPossibilityToNextRoll(dices, game);
+
+             game.setDices(dices);
+             repository.save(game);
+
+             GameMessage gameMessage = gameToMessage(game);
+             gameMessage.setType(GAME_CHECK.getType());
+
+             return gameMessage;
+         } else {
              return GameMessage.builder()
                      .type(ERROR.getType())
-                     .content(GAME_ERROR_NOT_FOUND_OR_FINISHED.name())
+                     .content(GAME_ERROR_NOT_FOUND_OR_FINISHED.getContent(message.getGameId()))
                      .build();
          }
-         Game game = gameOpt.get();
-         List<Dice> dices = message.getDices();
-
-         checkPossibilityToNextRoll(dices, game);
-
-         game.setDices(dices);
-         repository.save(game);
-
-         GameMessage gameMessage = gameToMessage(game);
-         gameMessage.setType(GAME_CHECK.getType());
-
-         return gameMessage;
      }
+
+    private void manageDicesFromRoll(List<Dice> dices, Game game) {
+        if(dices.isEmpty()){
+            getNumbersFromFirstRoll(dices);
+            checkPossibilityToNextRoll(dices, game);
+        } else {
+            getNumbersFromRoll(dices);
+            checkPossibilityToNextRoll(dices, game);
+        }
+    }
 
      private void checkPossibilityToNextRoll(List<Dice> dices, Game game) {
 
