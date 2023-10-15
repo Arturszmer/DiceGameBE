@@ -5,16 +5,16 @@ import com.example.DiceGameBE.dto.message.*;
 import com.example.DiceGameBE.exceptions.GameErrorResult;
 import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Game;
-import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.GamePlayersProvider;
+import com.example.DiceGameBE.utils.GameplayContents;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.example.DiceGameBE.utils.MessageContents.*;
+import static com.example.DiceGameBE.utils.ErrorContents.*;
 import static com.example.DiceGameBE.utils.MessageTypes.*;
 
 @RequiredArgsConstructor
@@ -40,17 +40,17 @@ public class GamePlayersProviderImpl implements GamePlayersProvider {
     public GameMessage leaveGame(SimpMessage message, String playerName) {
 
         Optional<Game> gameOpt = repository.findById(message.getGameId());
-        if(gameOpt.isEmpty() || gameOpt.get().getGameStatus() == GameStatus.FINISHED){
-            return MessageMapper.errorMessage(GAME_ERROR_NOT_FOUND_OR_FINISHED);
+        if(gameOpt.isPresent()){
+            Game game = gameOpt.get();
+            game.removePlayerByName(playerName);
+
+            repository.save(game);
+
+            return MessageMapper.gameToMessage(game,
+                    GameplayContents.DISCONNECT.getContent(playerName),
+                    GAME_LEAVE);
+        } else {
+            return MessageMapper.errorMessage(GAME_ERROR_NOT_FOUND_OR_FINISHED.getContent(message.getGameId()));
         }
-
-        Game game = gameOpt.get();
-        game.removePlayerByName(playerName);
-
-        repository.save(game);
-
-        return MessageMapper.gameToMessage(game,
-                String.format("Player %s is disconnected this game", playerName),
-                GAME_LEAVE);
     }
 }

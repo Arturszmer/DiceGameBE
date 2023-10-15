@@ -5,7 +5,7 @@ import com.example.DiceGameBE.model.GameStatus;
 
 public class GameValidations {
 
-    public static boolean inputInvalid(Game game) {
+    public static boolean gameStatusValid(Game game) {
         return game.getGameStatus() != GameStatus.FINISHED;
     }
 

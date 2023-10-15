@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static com.example.DiceGameBE.dto.message.MessageMapper.*;
-import static com.example.DiceGameBE.utils.MessageContents.*;
+import static com.example.DiceGameBE.utils.ErrorContents.*;
 import static com.example.DiceGameBE.utils.MessageTypes.*;
 
 @Service
@@ -29,11 +29,11 @@ public class DiceServiceImpl implements DiceService {
 
          Optional<Game> gameOpt = repository.findById(message.getGameId());
 
-         if(gameOpt.isPresent() && GameValidations.inputInvalid(gameOpt.get())){
+         if(gameOpt.isPresent() && GameValidations.gameStatusValid(gameOpt.get())){
              Game game = gameOpt.get();
 
              if(GameValidations.gameOwnerInvalid(game, owner)){
-                 return MessageMapper.errorMessage(GAME_ERROR_BAD_OWNER);
+                 return MessageMapper.errorMessage(GAME_ERROR_BAD_OWNER.getContent(owner));
              }
 
              List<Dice> dices = message.getDices();
@@ -44,7 +44,7 @@ public class DiceServiceImpl implements DiceService {
 
              return gameToMessage(game, GAME_ROLL);
          } else {
-             return MessageMapper.errorMessage(GAME_ERROR_NOT_FOUND_OR_FINISHED);
+             return MessageMapper.errorMessage(GAME_ERROR_NOT_FOUND_OR_FINISHED.getContent(message.getGameId()));
          }
      }
 
@@ -53,12 +53,12 @@ public class DiceServiceImpl implements DiceService {
     @Override
      public GameMessage checkDices(DiceMessage message, String owner) {
          Optional<Game> gameOpt = repository.findById(message.getGameId());
-         if(gameOpt.isPresent() && GameValidations.inputInvalid(gameOpt.get())){
+         if(gameOpt.isPresent() && GameValidations.gameStatusValid(gameOpt.get())){
 
              Game game = gameOpt.get();
 
              if(GameValidations.gameOwnerInvalid(game, owner)){
-                 return MessageMapper.errorMessage(GAME_ERROR_BAD_OWNER);
+                 return MessageMapper.errorMessage(GAME_ERROR_BAD_OWNER.getContent(owner));
              }
 
              List<Dice> dices = message.getDices();
@@ -75,7 +75,7 @@ public class DiceServiceImpl implements DiceService {
          } else {
              return GameMessage.builder()
                      .type(ERROR.getType())
-                     .content(GAME_ERROR_NOT_FOUND_OR_FINISHED.name())
+                     .content(GAME_ERROR_NOT_FOUND_OR_FINISHED.getContent(message.getGameId()))
                      .build();
          }
      }
@@ -151,7 +151,5 @@ public class DiceServiceImpl implements DiceService {
             }
         }
     }
-
-
  }
 

@@ -5,9 +5,10 @@ import com.example.DiceGameBE.dto.message.GameMessage;
 import com.example.DiceGameBE.dto.message.JoinMessage;
 import com.example.DiceGameBE.dto.message.MessageMapper;
 import com.example.DiceGameBE.model.Game;
-import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.GameCreatorService;
+import com.example.DiceGameBE.utils.GameValidations;
+import com.example.DiceGameBE.utils.GameplayContents;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 import static com.example.DiceGameBE.assemblers.PlayerAssembler.toEntity;
-import static com.example.DiceGameBE.utils.MessageContents.*;
+import static com.example.DiceGameBE.utils.ErrorContents.*;
 import static com.example.DiceGameBE.utils.MessageTypes.GAME_CREATED;
 
 @Service
@@ -38,13 +39,13 @@ public class GameCreatorServiceImpl implements GameCreatorService {
     public GameMessage connectGame(JoinMessage message) {
 
         Optional<Game> gameOpt = gameRepository.findById(message.getGameId());
-        if(gameOpt.isEmpty() || gameOpt.get().getGameStatus() == GameStatus.FINISHED){
-            return MessageMapper.errorMessage(GAME_ERROR_NOT_FOUND_OR_FINISHED);
+        if(gameOpt.isPresent() && GameValidations.gameStatusValid(gameOpt.get())){
+            Game game = gameOpt.get();
+            return MessageMapper.gameToMessage(game, GameplayContents.CONNECT.getContent(message.getPlayerName()),GAME_CREATED);
+        } else {
+
+            return MessageMapper.errorMessage(GAME_ERROR_NOT_FOUND_OR_FINISHED.getContent(message.getGameId()));
         }
-
-        Game game = gameOpt.get();
-
-        return MessageMapper.gameToMessage(game, GAME_CREATED);
     }
 
     @Override
