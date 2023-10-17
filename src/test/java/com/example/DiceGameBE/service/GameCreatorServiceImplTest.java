@@ -1,6 +1,8 @@
 package com.example.DiceGameBE.service;
 
 import com.example.DiceGameBE.dto.AdminPlayerDto;
+import com.example.DiceGameBE.dto.message.GameMessage;
+import com.example.DiceGameBE.dto.message.ConnectMessage;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.repository.GameRepository;
@@ -42,6 +44,21 @@ class GameCreatorServiceImplTest {
         assertEquals(GAME_ID, savedGame.getGameId());
         assertEquals(GameStatus.OPEN, savedGame.getGameStatus());
         assertEquals(1, savedGame.getPlayers().size());
+    }
+
+    @Test
+    public void should_connect_to_game() {
+
+        // given
+        Game game = buildSimpleGame();
+        ConnectMessage connectMessage = new ConnectMessage("", GAME_ID, "", game.getAdminPlayer().getName());
+        when(gameRepository.findById(any())).thenReturn(Optional.of(game));
+
+        // when
+        GameMessage gameMessage = gameCreatorService.connectGame(connectMessage);
+
+        // then
+        assertEquals(game, gameMessage.getGame());
     }
 
 }
