@@ -1,5 +1,6 @@
  package com.example.DiceGameBE.service.impl;
 
+
 import com.example.DiceGameBE.dto.message.DiceMessage;
 import com.example.DiceGameBE.dto.message.GameMessage;
 import com.example.DiceGameBE.dto.message.MessageMapper;
@@ -12,6 +13,7 @@ import com.example.DiceGameBE.utils.GameValidations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.example.DiceGameBE.dto.message.MessageMapper.*;
 import static com.example.DiceGameBE.utils.ErrorContents.*;
@@ -47,8 +49,6 @@ public class DiceServiceImpl implements DiceService {
              return MessageMapper.errorMessage(GAME_ERROR_NOT_FOUND_OR_FINISHED.getContent(message.getGameId()));
          }
      }
-
-
 
     @Override
      public GameMessage checkDices(DiceMessage message, String owner) {
@@ -106,28 +106,40 @@ public class DiceServiceImpl implements DiceService {
             setAttributes(dices);
     }
 
-     private void getNumbersFromRoll(List<Dice> dices) {
-        // TODO: dodać filtry tak by pozostawić kostki zaznaczone ( i immutable), a rzucić wyłącznie pozostałymi koścmi
-         // TODO: jeżeli wszystkie są immutabe lub checked to powinien rzucić znowu wszystkimi kostkami
-         if(dices.stream().filter(dice -> dice.isChecked() || dice.isImmutable()).toList().size() == 5){
-             for (int i = 0; i < 5; i++) {
-                 int value = random.nextInt(6) +1;
-                 dices.get(i).insertNewValueFromRoll(value);
-             }
-         } else {
-             for (int i = 0; i < 5; i++) {
-                 Dice dice = dices.get(i);
-                 if(!(dice.isChecked() || dice.isImmutable())){
-                     int value = random.nextInt(6) +1;
-                     dice.insertNewValueFromRoll(value);
-                 }
-                 if(dice.isChecked() && !dice.isImmutable()){
-                     dice.setImmutable(true);
-                 }
-             }
-         }
-         setAttributes(dices);
-     }
+    public void getNumbersFromRoll(List<Dice> dices) {
+        int dicesToRoll = 5 - dices.size();
+
+        addRollForNonImmutable(dices, dicesToRoll);
+        addRollForImmutable(dices, dicesToRoll);
+
+        setAttributes(dices);
+    }
+
+    private void addRollForNonImmutable(List<Dice> dices, int dicesToRoll) {
+        List<Dice> nonImmutableDices = dices.stream()
+                .filter(d -> !d.isImmutable())
+                .toList();
+
+        for (Dice dice : nonImmutableDices) {
+            for (int i = 0; i < dicesToRoll - nonImmutableDices.size(); i++) {
+                int value = random.nextInt(6) + 1;
+                dice.insertNewValueFromRoll(value);
+            }
+        }
+    }
+
+    private void addRollForImmutable(List<Dice> dices, int dicesToRoll) {
+        List<Dice> immutableDices = dices.stream()
+                .filter(d -> d.isImmutable() || d.isChecked())
+                .toList();
+
+        for (Dice dice : immutableDices) {
+            for (int i = 0; i < dicesToRoll; i++) {
+                int value = random.nextInt(6) + 1;
+                dice.insertNewValueFromRoll(value);
+            }
+        }
+    }
 
     private void setAttributes(List<Dice> dices) {
         List<Dice> dicesToManageAttributes = dices.stream().filter(dice -> !dice.isImmutable()).toList();
@@ -151,5 +163,37 @@ public class DiceServiceImpl implements DiceService {
             }
         }
     }
- }
 
+    public static int allPointsFromRoll(List<Dice> dices) {
+        int allPointsFromRoll = 0;
+
+        List<Dice> multiplesArray = dices.stream()
+                .filter(Dice::isMultiple)
+                .collect(Collectors.toList());
+
+        if (!multiplesArray.isEmpty()) {
+            allPointsFromRoll = countMultiples(multiplesArray);
+        }
+        List<Dice> restDices = dices.stream()
+                .filter(d -> !d.isMultiple() && d.isChecked() && !d.isImmutable())
+                .toList();
+
+        for (Dice dice : restDices) {
+            if (dice.getValue() == 1) {
+                allPointsFromRoll += 10;
+            } else {
+                allPointsFromRoll += 5;
+            }
+        }
+
+        return allPointsFromRoll;
+    }
+
+    private static int countMultiples(List<Dice> multiplesArray) {
+        if (multiplesArray.get(0).getValue() != 1) {
+            return multiplesArray.get(0).getValue() * 10 * (multiplesArray.size() - 2);
+        } else {
+            return 10 * (multiplesArray.size() - 2) * 10;
+        }
+    }
+}

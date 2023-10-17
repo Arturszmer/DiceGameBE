@@ -9,5 +9,4 @@ public class DiceGameBeApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DiceGameBeApplication.class, args);
 	}
-
 }
