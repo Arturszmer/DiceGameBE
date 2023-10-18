@@ -13,9 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
+import static com.example.DiceGameBE.common.ErrorContents.GAME_ERROR_BAD_OWNER;
+import static com.example.DiceGameBE.common.ErrorContents.GAME_ERROR_NOT_FOUND_OR_FINISHED;
+import static com.example.DiceGameBE.common.MessageTypes.*;
 import static com.example.DiceGameBE.dto.message.MessageMapper.*;
-import static com.example.DiceGameBE.utils.ErrorContents.*;
-import static com.example.DiceGameBE.utils.MessageTypes.*;
 
 @Service
 @RequiredArgsConstructor

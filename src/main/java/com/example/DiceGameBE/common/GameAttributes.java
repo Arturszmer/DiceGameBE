@@ -1,4 +1,4 @@
-package com.example.DiceGameBE.utils;
+package com.example.DiceGameBE.common;
 
 import lombok.Getter;
 

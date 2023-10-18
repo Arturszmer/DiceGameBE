@@ -14,7 +14,7 @@ import org.springframework.stereotype.Controller;
 
 import java.util.Objects;
 
-import static com.example.DiceGameBE.utils.GameAttributes.PLAYER;
+import static com.example.DiceGameBE.common.GameAttributes.PLAYER;
 
 @Controller
 public class WsGameplayController {

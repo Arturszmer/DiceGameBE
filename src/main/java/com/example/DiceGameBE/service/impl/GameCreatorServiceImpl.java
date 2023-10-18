@@ -8,7 +8,7 @@ import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.GameCreatorService;
 import com.example.DiceGameBE.utils.GameValidations;
-import com.example.DiceGameBE.utils.GameplayContents;
+import com.example.DiceGameBE.common.GameplayContents;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 import static com.example.DiceGameBE.assemblers.PlayerAssembler.toEntity;
-import static com.example.DiceGameBE.utils.ErrorContents.*;
-import static com.example.DiceGameBE.utils.MessageTypes.GAME_CREATED;
+import static com.example.DiceGameBE.common.ErrorContents.*;
+import static com.example.DiceGameBE.common.MessageTypes.GAME_CREATED;
 
 @Service
 @Slf4j

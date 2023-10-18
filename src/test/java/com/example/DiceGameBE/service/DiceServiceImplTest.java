@@ -8,7 +8,7 @@ import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.model.Player;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.impl.DiceServiceImpl;
-import com.example.DiceGameBE.utils.ErrorContents;
+import com.example.DiceGameBE.common.ErrorContents;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,7 @@ import java.util.Optional;
 import static com.example.DiceGameBE.model.GameStatus.FINISHED;
 import static com.example.DiceGameBE.model.GameStatus.OPEN;
 import static com.example.DiceGameBE.service.DiceBuilder.*;
-import static com.example.DiceGameBE.utils.MessageTypes.*;
+import static com.example.DiceGameBE.common.MessageTypes.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
