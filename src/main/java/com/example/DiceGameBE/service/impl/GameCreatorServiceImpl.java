@@ -2,7 +2,7 @@ package com.example.DiceGameBE.service.impl;
 
 import com.example.DiceGameBE.dto.AdminPlayerDto;
 import com.example.DiceGameBE.dto.message.GameMessage;
-import com.example.DiceGameBE.dto.message.JoinMessage;
+import com.example.DiceGameBE.dto.message.ConnectMessage;
 import com.example.DiceGameBE.dto.message.MessageMapper;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.repository.GameRepository;
@@ -36,14 +36,13 @@ public class GameCreatorServiceImpl implements GameCreatorService {
     }
 
     @Override
-    public GameMessage connectGame(JoinMessage message) {
+    public GameMessage connectGame(ConnectMessage message) {
 
         Optional<Game> gameOpt = gameRepository.findById(message.getGameId());
         if(gameOpt.isPresent() && GameValidations.gameStatusValid(gameOpt.get())){
             Game game = gameOpt.get();
-            return MessageMapper.gameToMessage(game, GameplayContents.CONNECT.getContent(message.getPlayerName()),GAME_CREATED);
+            return MessageMapper.gameToMessage(game, GameplayContents.CONNECT.getContent(message.getPlayerName()), GAME_CREATED);
         } else {
-
             return MessageMapper.errorMessage(GAME_ERROR_NOT_FOUND_OR_FINISHED.getContent(message.getGameId()));
         }
     }

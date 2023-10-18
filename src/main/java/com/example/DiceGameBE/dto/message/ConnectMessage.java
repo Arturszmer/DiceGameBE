@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class JoinMessage implements Message{
+public class ConnectMessage implements Message{
 
     private String type;
     private String gameId;
