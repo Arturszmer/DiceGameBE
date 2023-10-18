@@ -130,6 +130,7 @@ public class DiceServiceImpl implements DiceService {
      }
 
     private void setAttributes(List<Dice> dices) {
+         //TODO: przenieść do Utilsów i zwracać listę z zaktualizowanymi atrybutami
         List<Dice> dicesToManageAttributes = dices.stream().filter(dice -> !dice.isImmutable()).toList();
         Map<Integer, Integer> diceValueCounts = new HashMap<>();
         for (Dice dice : dicesToManageAttributes) {
