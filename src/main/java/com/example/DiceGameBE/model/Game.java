@@ -94,7 +94,9 @@ public class Game implements Serializable {
     public void inactivePlayerByName(String toInactivePlayerName) {
         Player currentPlayer = getCurrentPlayer();
         if(currentPlayer != null && currentPlayer.getName().equals(toInactivePlayerName)){
-            getPlayerByName(toInactivePlayerName).setActive(false);
+            currentPlayer.setActive(false);
+            currentPlayer.getValidations().setAllFalse();
+            dices.clear();
             nextTurn();
         } else {
             getPlayerByName(toInactivePlayerName).setActive(false);
