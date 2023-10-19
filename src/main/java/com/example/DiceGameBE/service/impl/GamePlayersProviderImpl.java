@@ -7,15 +7,15 @@ import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.GamePlayersProvider;
-import com.example.DiceGameBE.utils.GameplayContents;
+import com.example.DiceGameBE.common.GameplayContents;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static com.example.DiceGameBE.utils.ErrorContents.*;
-import static com.example.DiceGameBE.utils.MessageTypes.*;
+import static com.example.DiceGameBE.common.ErrorContents.*;
+import static com.example.DiceGameBE.common.MessageTypes.*;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -42,7 +42,7 @@ public class GamePlayersProviderImpl implements GamePlayersProvider {
         Optional<Game> gameOpt = repository.findById(message.getGameId());
         if(gameOpt.isPresent()){
             Game game = gameOpt.get();
-            game.removePlayerByName(playerName);
+            game.inactivePlayerByName(playerName);
 
             repository.save(game);
 

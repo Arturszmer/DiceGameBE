@@ -8,7 +8,7 @@ import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.impl.GamePlayersProviderImpl;
-import com.example.DiceGameBE.utils.GameplayContents;
+import com.example.DiceGameBE.common.GameplayContents;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -93,8 +93,8 @@ public class GamePlayersProviderTest {
         GameMessage gameMessage = playersProvider.leaveGame(message, playerToLeave);
 
         // then
-        assertEquals(2, gameMessage.getGame().getPlayers().size());
-        assertThrows(GameException.class, () -> gameMessage.getGame().getPlayerByName(playerToLeave));
+        assertEquals(3, gameMessage.getGame().getPlayers().size());
+        assertFalse(gameMessage.getGame().getPlayerByName(playerToLeave).isActive());
         assertEquals(GameplayContents.DISCONNECT.getContent(playerToLeave), gameMessage.getContent());
 
     }
@@ -118,6 +118,12 @@ public class GamePlayersProviderTest {
         //TODO: do poprawienia logika wychodzenia gra z gry
         assertEquals(nextPlayer, gameMessage.getCurrentPlayer().getName());
         assertTrue(gameMessage.getCurrentPlayer().getValidations().isRolling());
+        // next turn for admin
+        game.nextTurn();
+        assertEquals(game.getAdminPlayer().getName(), game.getCurrentPlayer().getName());
+        //should bypass the inactive user
+        game.nextTurn();
+        assertEquals(nextPlayer, game.getCurrentPlayer().getName());
 
     }
 
