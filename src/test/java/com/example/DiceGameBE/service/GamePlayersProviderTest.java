@@ -28,10 +28,11 @@ public class GamePlayersProviderTest {
 
     private GamePlayersProvider playersProvider;
     private final GameRepository repository = mock(GameRepository.class);
+    private final String PATH_URL = "http://localhost:4200/mulitple-game/join/";
 
     @BeforeEach
     void setup(){
-        playersProvider = new GamePlayersProviderImpl(repository);
+        playersProvider = new GamePlayersProviderImpl(repository, PATH_URL);
     }
 
     @Test
@@ -124,6 +125,20 @@ public class GamePlayersProviderTest {
         //should bypass the inactive user
         game.nextTurn();
         assertEquals(nextPlayer, game.getCurrentPlayer().getName());
+
+    }
+
+    @Test
+    public void should_generate_correct_link() {
+        // given
+        Game game = buildSimpleGame();
+        when(repository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
+
+        // when
+        String link = playersProvider.generateLink(GAME_ID);
+
+        // then
+        assertTrue(link.contains(PATH_URL));
 
     }
 
