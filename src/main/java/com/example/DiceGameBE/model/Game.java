@@ -31,6 +31,9 @@ public class Game implements Serializable {
     private Integer currentTurn = 0;
     private LocalDateTime startGameTime;
     private List<Dice> dices = new ArrayList<>();
+    @Setter(AccessLevel.NONE)
+    @Indexed
+    private String invitationToken;
 
     public Game(Player adminPlayer) {
         this.gameId = UUID.randomUUID().toString().replace("-", "");
@@ -100,6 +103,14 @@ public class Game implements Serializable {
             nextTurn();
         } else {
             getPlayerByName(toInactivePlayerName).setActive(false);
+        }
+    }
+
+    public String generateToken(){
+        if(invitationToken == null){
+            return invitationToken = UUID.randomUUID().toString();
+        } else {
+            return invitationToken;
         }
     }
 }

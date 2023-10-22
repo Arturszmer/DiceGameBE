@@ -8,8 +8,8 @@ import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.GamePlayersProvider;
 import com.example.DiceGameBE.common.GameplayContents;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,17 +17,25 @@ import java.util.Optional;
 import static com.example.DiceGameBE.common.ErrorContents.*;
 import static com.example.DiceGameBE.common.MessageTypes.*;
 
-@RequiredArgsConstructor
 @Slf4j
 @Service
 public class GamePlayersProviderImpl implements GamePlayersProvider {
 
     private final GameRepository repository;
+    private final String PATH_URL;
+
+    public GamePlayersProviderImpl(GameRepository repository,
+                                   @Value("${url.basicPath}") String PATH_URL) {
+        this.repository = repository;
+        this.PATH_URL = PATH_URL;
+    }
 
     @Override
     public Game joinToOpenGame(NewPlayerDto newPlayer, String gameId) {
 
-        Game game = repository.findById(gameId).orElseThrow(() -> new GameException(GameErrorResult.GAME_NOT_FOUND_EX));
+        Game game = repository.findById(gameId)
+                .orElseGet(() -> repository.findGamesByInvitationToken(gameId).stream().findFirst()
+                        .orElseThrow(() -> new GameException(GameErrorResult.GAME_NOT_FOUND_EX)));
 
         game.addPlayer(newPlayer.playerName());
         log.info("New Player to game id: {} has been added, his name is: {}", game.getGameId(), newPlayer.playerName());
@@ -52,5 +60,13 @@ public class GamePlayersProviderImpl implements GamePlayersProvider {
         } else {
             return MessageMapper.errorMessage(GAME_ERROR_NOT_FOUND_OR_FINISHED.getContent(message.getGameId()));
         }
+    }
+
+    @Override
+    public String generateLink(String gameId) {
+        Game game = repository.findById(gameId).orElseThrow(() -> new GameException(GameErrorResult.GAME_NOT_FOUND_EX));
+        String token = game.generateToken();
+        repository.save(game);
+        return PATH_URL + token;
     }
 }

@@ -6,6 +6,7 @@ import com.example.DiceGameBE.service.GamePlayersProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,4 +23,10 @@ public class GamePlayersController {
         Game game = gamePlayersProvider.joinToOpenGame(playerName, gameId);
         return ResponseEntity.ok(game);
     }
+
+    @GetMapping("/{game-id}/generate-invite-link")
+    public ResponseEntity<String> getInviteLink(@PathVariable("game-id") String gameId){
+        return ResponseEntity.ok(gamePlayersProvider.generateLink(gameId));
+    }
+
 }

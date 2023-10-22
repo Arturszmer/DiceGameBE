@@ -9,4 +9,5 @@ public interface GamePlayersProvider {
 
     Game joinToOpenGame(NewPlayerDto playerName, String gameId);
     GameMessage leaveGame(SimpMessage message, String playerName);
+    String generateLink(String gameId);
 }
