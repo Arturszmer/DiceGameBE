@@ -29,16 +29,18 @@ class GameModels {
                 .withPlayers(List.of(createAdminPlayer()))
                 .build();
     }
-    static Game buildSimpleGame(int numberOfPlayers){
+    static Game buildSimpleGame(String... players){
         Game game = GameBuilder.aGameBuilder()
                 .withGameId(GAME_ID)
                 .withGameStatus(GameStatus.OPEN)
                 .withAdminPlayer(createAdminPlayer())
                 .withPlayers(List.of(createAdminPlayer()))
                 .build();
-        for(int i = 1; i <= numberOfPlayers; i++){
-            game.getPlayers().add(new Player(i, "user" + i));
+
+        for (String s : players) {
+            game.addPlayer(s);
         }
+
         return game;
     }
 

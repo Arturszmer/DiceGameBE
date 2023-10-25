@@ -1,11 +1,14 @@
 package com.example.DiceGameBE.service;
 
 import com.example.DiceGameBE.dto.NewPlayerDto;
+import com.example.DiceGameBE.dto.message.GameMessage;
+import com.example.DiceGameBE.dto.message.SimpMessage;
 import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.impl.GamePlayersProviderImpl;
+import com.example.DiceGameBE.common.GameplayContents;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,10 +28,11 @@ public class GamePlayersProviderTest {
 
     private GamePlayersProvider playersProvider;
     private final GameRepository repository = mock(GameRepository.class);
+    private final String PATH_URL = "http://localhost:4200/mulitple-game/join/";
 
     @BeforeEach
     void setup(){
-        playersProvider = new GamePlayersProviderImpl(repository);
+        playersProvider = new GamePlayersProviderImpl(repository, PATH_URL);
     }
 
     @Test
@@ -76,12 +80,74 @@ public class GamePlayersProviderTest {
                 () -> playersProvider.joinToOpenGame(player, GAME_ID));
     }
 
+    @Test
+    public void should_leave_the_game() {
+        // given
+        String playerToLeave = "Player1";
+        SimpMessage message = SimpMessage.builder()
+                .gameId(GAME_ID).build();
+        Game game = buildSimpleGame(playerToLeave, "Player2");
+        when(repository.findById(GAME_ID)).thenReturn(Optional.of(game));
+
+        // when
+        assertEquals(playerToLeave, game.getPlayerByName(playerToLeave).getName());
+        GameMessage gameMessage = playersProvider.leaveGame(message, playerToLeave);
+
+        // then
+        assertEquals(3, gameMessage.getGame().getPlayers().size());
+        assertFalse(gameMessage.getGame().getPlayerByName(playerToLeave).isActive());
+        assertEquals(GameplayContents.DISCONNECT.getContent(playerToLeave), gameMessage.getContent());
+
+    }
+
+    @Test
+    public void should_change_player_turn_if_current_player_left_game() {
+        // given
+        String playerToLeave = "Player1";
+        String nextPlayer = "Player2";
+        SimpMessage message = SimpMessage.builder()
+                .gameId(GAME_ID).build();
+        Game game = buildSimpleGame(playerToLeave, nextPlayer);
+        game.nextTurn();
+        when(repository.findById(GAME_ID)).thenReturn(Optional.of(game));
+
+        // when
+        assertEquals(playerToLeave, game.getCurrentPlayer().getName());
+        GameMessage gameMessage = playersProvider.leaveGame(message, playerToLeave);
+
+        // then
+        //TODO: do poprawienia logika wychodzenia gra z gry
+        assertEquals(nextPlayer, gameMessage.getCurrentPlayer().getName());
+        assertTrue(gameMessage.getCurrentPlayer().getValidations().isRolling());
+        // next turn for admin
+        game.nextTurn();
+        assertEquals(game.getAdminPlayer().getName(), game.getCurrentPlayer().getName());
+        //should bypass the inactive user
+        game.nextTurn();
+        assertEquals(nextPlayer, game.getCurrentPlayer().getName());
+
+    }
+
+    @Test
+    public void should_generate_correct_link() {
+        // given
+        Game game = buildSimpleGame();
+        when(repository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
+
+        // when
+        String link = playersProvider.generateLink(GAME_ID);
+
+        // then
+        assertTrue(link.contains(PATH_URL));
+
+    }
+
     private static Stream<Arguments> checkExceptionsForAddPlayerMethod(){
         return Stream.of(
-                Arguments.of(buildSimpleGame(2), new NewPlayerDto("ar"), GameException.class, OPEN),
-                Arguments.of(buildSimpleGame(3),  new NewPlayerDto("user4"), GameException.class, OPEN),
+                Arguments.of(buildSimpleGame("player2", "player3"), new NewPlayerDto("ar"), GameException.class, OPEN),
+                Arguments.of(buildSimpleGame("player2", "player3", "player4"),  new NewPlayerDto("user4"), GameException.class, OPEN),
                 Arguments.of(buildSimpleGame(),  new NewPlayerDto("user1"), GameException.class, FINISHED),
-                Arguments.of(buildSimpleGame(1),  new NewPlayerDto("user1"), GameException.class, OPEN)
+                Arguments.of(buildSimpleGame("player2"),  new NewPlayerDto("player2"), GameException.class, OPEN)
                 );
     }
 }

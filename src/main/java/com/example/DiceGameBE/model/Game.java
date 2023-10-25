@@ -31,7 +31,9 @@ public class Game implements Serializable {
     private Integer currentTurn = 0;
     private LocalDateTime startGameTime;
     private List<Dice> dices = new ArrayList<>();
-    private GameDices gameDices;
+    @Setter(AccessLevel.NONE)
+    @Indexed
+    private String invitationToken;
 
     public Game(Player adminPlayer) {
         this.gameId = UUID.randomUUID().toString().replace("-", "");
@@ -71,7 +73,14 @@ public class Game implements Serializable {
         if(currentTurn == players.size()){
             currentTurn = 0;
         }
+        if(isPlayerInactive(currentTurn)){
+            nextTurn();
+        }
         getCurrentPlayer().getValidations().setRolling(true);
+    }
+
+    private boolean isPlayerInactive(Integer currentTurn) {
+        return !players.get(currentTurn).isActive();
     }
 
     public Player getCurrentPlayer() {
@@ -85,13 +94,23 @@ public class Game implements Serializable {
                 .orElseThrow(() -> new GameException(PLAYER_DOES_NOT_EXIST, playerName));
     }
 
-    public void removePlayerByName(String playerName) {
+    public void inactivePlayerByName(String toInactivePlayerName) {
         Player currentPlayer = getCurrentPlayer();
-        if(currentPlayer != null && currentPlayer.getName().equals(playerName)){
-            players.removeIf(player -> player.getName().equals(playerName));
+        if(currentPlayer != null && currentPlayer.getName().equals(toInactivePlayerName)){
+            currentPlayer.setActive(false);
+            currentPlayer.getValidations().setAllFalse();
+            dices.clear();
             nextTurn();
         } else {
-            players.removeIf(player -> player.getName().equals(playerName));
+            getPlayerByName(toInactivePlayerName).setActive(false);
+        }
+    }
+
+    public String generateToken(){
+        if(invitationToken == null){
+            return invitationToken = UUID.randomUUID().toString();
+        } else {
+            return invitationToken;
         }
     }
 }

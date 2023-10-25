@@ -1,9 +1,9 @@
 package com.example.DiceGameBE.dto.message;
 
 import com.example.DiceGameBE.model.Game;
-import com.example.DiceGameBE.utils.MessageTypes;
+import com.example.DiceGameBE.common.MessageTypes;
 
-import static com.example.DiceGameBE.utils.MessageTypes.ERROR;
+import static com.example.DiceGameBE.common.MessageTypes.ERROR;
 
 public class MessageMapper {
 

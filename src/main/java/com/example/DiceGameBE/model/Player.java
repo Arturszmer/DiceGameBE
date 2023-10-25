@@ -12,12 +12,14 @@ public class Player implements Serializable {
     private Integer id;
     private String name;
     private Integer points;
+    private boolean active;
     private Validations validations;
 
     public Player(Integer id, String name) {
         this.id = id;
         this.name = name;
         this.points = 0;
+        this.active = true;
         this.validations = new Validations(
                 false,
                 id == 0, false, false);

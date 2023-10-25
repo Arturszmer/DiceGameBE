@@ -2,8 +2,7 @@ package com.example.DiceGameBE.service;
 
 import com.example.DiceGameBE.model.Dice;
 
-
-public class DiceBuilder {
+class DiceBuilder {
 
     private Integer value;
     private boolean isGoodNumber;
@@ -11,39 +10,42 @@ public class DiceBuilder {
     private boolean isMultiple;
     private boolean isImmutable;
 
-    private DiceBuilder() {
-    }
-
-    public static DiceBuilder aDiceBuilder() {
+    public static DiceBuilder aDiceBuilder(){
         return new DiceBuilder();
     }
 
-    public DiceBuilder withValue(Integer value) {
+    public DiceBuilder withValue(int value){
         this.value = value;
         return this;
     }
 
-    public DiceBuilder withGoodNumber() {
-        this.isGoodNumber = true;
+    public DiceBuilder withGoodNumber(){
+        isGoodNumber = true;
         return this;
     }
 
-    public DiceBuilder withChecked() {
-        this.isChecked = true;
+    public DiceBuilder withChecked(){
+        isChecked = true;
         return this;
     }
 
-    public DiceBuilder withMultiple() {
-        this.isMultiple = true;
+    public DiceBuilder withMultiple(){
+        isMultiple = true;
         return this;
     }
 
-    public DiceBuilder withImmutable() {
-        this.isImmutable = true;
+    public DiceBuilder withImmutable(){
+        isImmutable = true;
         return this;
     }
 
-    public Dice build() {
-        return new Dice(value, isGoodNumber, isChecked, isMultiple, isImmutable);
+    public Dice build(){
+        Dice dice = new Dice();
+        dice.setValue(value);
+        dice.setGoodNumber(isGoodNumber);
+        dice.setChecked(isChecked);
+        dice.setMultiple(isMultiple);
+        dice.setImmutable(isImmutable);
+        return dice;
     }
 }

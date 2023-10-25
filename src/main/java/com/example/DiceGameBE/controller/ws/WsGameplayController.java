@@ -14,7 +14,7 @@ import org.springframework.stereotype.Controller;
 
 import java.util.Objects;
 
-import static com.example.DiceGameBE.utils.GameAttributes.PLAYER;
+import static com.example.DiceGameBE.common.GameAttributes.PLAYER;
 
 @Controller
 public class WsGameplayController {
@@ -41,7 +41,7 @@ public class WsGameplayController {
 
     @MessageMapping("/game.connect")
     public void connectGame(
-            @Payload JoinMessage message,
+            @Payload ConnectMessage message,
             SimpMessageHeaderAccessor headerAccessor){
         GameMessage gameMessage = gameCreatorService.connectGame(message);
         Objects.requireNonNull(headerAccessor.getSessionAttributes()).put("gameId", gameMessage.getGameId());

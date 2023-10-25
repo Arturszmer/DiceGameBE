@@ -6,7 +6,7 @@ import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.repository.GameRepository;
-import com.example.DiceGameBE.utils.MessageTypes;
+import com.example.DiceGameBE.common.MessageTypes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
@@ -17,7 +17,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.Objects;
 
-import static com.example.DiceGameBE.utils.GameAttributes.GAME_ID;
+import static com.example.DiceGameBE.common.GameAttributes.GAME_ID;
 
 @Component
 @Slf4j
