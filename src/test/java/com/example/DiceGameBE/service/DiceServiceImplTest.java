@@ -11,12 +11,16 @@ import com.example.DiceGameBE.service.impl.DiceServiceImpl;
 import com.example.DiceGameBE.common.ErrorContents;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.example.DiceGameBE.model.GameStatus.FINISHED;
 import static com.example.DiceGameBE.model.GameStatus.OPEN;
@@ -114,9 +118,9 @@ class DiceServiceImplTest {
         // then
         List<Dice> dicesAfterRoll = gameMessage.getGame().getDices();
         assertEquals(dices.get(0).getValue(), dicesAfterRoll.get(0).getValue());
-        assertTrue(dices.get(0).isImmutable());
+        assertTrue(dices.get(0).isGoodNumber());
         assertEquals(dices.get(1).getValue(), dicesAfterRoll.get(1).getValue());
-        assertTrue(dices.get(1).isImmutable());
+        assertTrue(dices.get(1).isGoodNumber());
 
     }
 
@@ -134,7 +138,7 @@ class DiceServiceImplTest {
         // then
         List<Dice> dicesAfterRoll = gameMessage.getGame().getDices();
         assertAll(() -> dicesAfterRoll.forEach(
-                dice -> assertFalse(dice.isImmutable())
+                dice -> assertTrue(dice.isGoodNumber())
         ));
 
     }
@@ -237,5 +241,86 @@ class DiceServiceImplTest {
             }
         }
         return dices;
+    }
+
+    @ParameterizedTest
+    @MethodSource("dicesToCount")
+    public void testCalculatePointsForAllGoodNumber(List<Dice> dices, int result) {
+
+        //when
+        int points3 = DiceServiceImpl.allPointsFromRoll(dices);
+
+        //then
+        assertEquals(result, points3);
+    }
+
+    private static Stream<Arguments> dicesToCount(){
+        return Stream.of(
+                Arguments.of(dicesWith20Points(),20),
+                Arguments.of(dicesWith30Points(),30),
+                Arguments.of(dicesWith50Points(),50)
+        );
+    }
+
+    private static List<Dice> dicesWith20Points() {
+        return List.of(
+                DiceBuilder.aDiceBuilder().withValue(1).withGoodNumber().withChecked().withImmutable().build(),
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(1).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(2).build()
+        );
+    }
+
+    private static List<Dice> dicesWith30Points(){
+        return List.of(
+                DiceBuilder.aDiceBuilder().withValue(1).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(1).withGoodNumber().withChecked().build(),
+                DiceBuilder.aDiceBuilder().withValue(2).build()
+        );
+    }
+
+    private static List<Dice> dicesWith50Points() {
+        return List.of(
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().withMultiple().build(),
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().withMultiple().build(),
+                DiceBuilder.aDiceBuilder().withValue(5).withGoodNumber().withChecked().withMultiple().build(),
+                DiceBuilder.aDiceBuilder().withValue(1).withGoodNumber().withChecked().withImmutable().build(),
+                DiceBuilder.aDiceBuilder().withValue(2).build()
+        );
+    }
+
+    @Test
+    public void testShouldAllPointsFromRoll() {
+
+        //given
+        List<Dice> dices5 = new ArrayList<>();
+        dices5.add(new Dice(1, false, true, false, false));
+        dices5.add(new Dice(5, false, true, false, false));
+        dices5.add(new Dice(2, true, false, true, false));
+        dices5.add(new Dice(2, true, false, true, false));
+        dices5.add(new Dice(2, true, false, true, false));
+        int points5 = DiceServiceImpl.allPointsFromRoll(dices5);
+
+        //then
+        assertEquals(35, points5);
+    }
+
+    @Test
+    public void testShouldTemporaryPoints() {
+
+        //given
+        List<Dice> dices6 = new ArrayList<>();
+        dices6.add(new Dice(1, false, false, false, false));
+        dices6.add(new Dice(5, false, false, false, false));
+        dices6.add(new Dice(2, true, true, true, false));
+        dices6.add(new Dice(2, true, true, true, false));
+        dices6.add(new Dice(2, true, true, true, false));
+        int points6 = DiceServiceImpl.allPointsFromRoll(dices6);
+
+        //then
+        assertEquals(20, points6);
     }
 }
