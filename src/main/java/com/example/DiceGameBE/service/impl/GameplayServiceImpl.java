@@ -32,6 +32,7 @@ public class GameplayServiceImpl implements GameplayService {
             game.getCurrentPlayer().getValidations().setAllFalse();
             game.nextTurn();
             game.getDices().clear();
+            game.clearPoints();
 
             gameRepository.save(game);
 

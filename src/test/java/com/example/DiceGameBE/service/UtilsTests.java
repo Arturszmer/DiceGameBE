@@ -31,4 +31,9 @@ public class UtilsTests {
         }
         return dicesToManageAttributes;
     }
+
+    public static List<Dice> setCheckedAllDices(List<Dice> dices){
+        dices.stream().filter(Dice::isGoodNumber).forEach(dice -> dice.setChecked(true));
+        return dices;
+    }
 }

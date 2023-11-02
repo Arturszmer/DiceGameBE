@@ -5,9 +5,11 @@ import com.example.DiceGameBE.dto.message.GameMessage;
 import com.example.DiceGameBE.dto.message.MessageMapper;
 import com.example.DiceGameBE.model.Dice;
 import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.model.Points;
 import com.example.DiceGameBE.model.Validations;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.DiceService;
+import com.example.DiceGameBE.utils.DicesCalculator;
 import com.example.DiceGameBE.utils.GameValidations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,9 +39,10 @@ public class DiceServiceImpl implements DiceService {
                  return MessageMapper.errorMessage(GAME_ERROR_BAD_OWNER.getContent(owner));
              }
 
+             game.getPoints().managePointsBeforeNextRoll();
              List<Dice> dices = message.getDices();
 
-             manageDicesFromRoll(dices, game);
+             roll(dices, game);
              game.setDices(dices);
              repository.save(game);
 
@@ -67,6 +70,8 @@ public class DiceServiceImpl implements DiceService {
              checkPossibilityToNextRoll(dices, game);
 
              game.setDices(dices);
+             Points points = game.getPoints();
+             points.setTemporaryPoints(DicesCalculator.count(dices));
              repository.save(game);
 
              GameMessage gameMessage = gameToMessage(game);
@@ -81,7 +86,7 @@ public class DiceServiceImpl implements DiceService {
          }
      }
 
-    private void manageDicesFromRoll(List<Dice> dices, Game game) {
+    private void roll(List<Dice> dices, Game game) {
         if(dices.isEmpty()){
             rollingAllDices(dices);
             checkPossibilityToNextRoll(dices, game);
@@ -108,8 +113,6 @@ public class DiceServiceImpl implements DiceService {
     }
 
      private void rollingPartOfTheDices(List<Dice> dices) {
-        // TODO: dodać filtry tak by pozostawić kostki zaznaczone ( i immutable), a rzucić wyłącznie pozostałymi koścmi
-         // TODO: jeżeli wszystkie są immutabe lub checked to powinien rzucić znowu wszystkimi kostkami
          if(dices.stream().filter(dice -> dice.isChecked() || dice.isImmutable()).toList().size() == 5){
              for (int i = 0; i < 5; i++) {
                  int value = random.nextInt(6) +1;
@@ -131,7 +134,6 @@ public class DiceServiceImpl implements DiceService {
      }
 
     private void setAttributes(List<Dice> dices) {
-         //TODO: przenieść do Utilsów i zwracać listę z zaktualizowanymi atrybutami
         List<Dice> dicesToManageAttributes = dices.stream().filter(dice -> !dice.isImmutable()).toList();
         Map<Integer, Integer> diceValueCounts = new HashMap<>();
         for (Dice dice : dicesToManageAttributes) {

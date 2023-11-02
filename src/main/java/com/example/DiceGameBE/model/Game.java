@@ -29,6 +29,7 @@ public class Game implements Serializable {
     private Player adminPlayer;
     @Setter(AccessLevel.NONE)
     private Integer currentTurn = 0;
+    private Points points;
     private LocalDateTime startGameTime;
     private List<Dice> dices = new ArrayList<>();
     @Setter(AccessLevel.NONE)
@@ -42,6 +43,7 @@ public class Game implements Serializable {
         this.adminPlayer = adminPlayer;
         getPlayers().add(adminPlayer);
         this.startGameTime = LocalDateTime.now();
+        this.points = new Points();
     }
 
     public void addPlayer(String playerName){
@@ -66,6 +68,10 @@ public class Game implements Serializable {
         if(isPlayerUnique){
             throw new GameException(UNIQUE_PLAYER_NAME_EX, player.getName());
         }
+    }
+
+    public void clearPoints(){
+        this.points.clear();
     }
 
     public void nextTurn() {
