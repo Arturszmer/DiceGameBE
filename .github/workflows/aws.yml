@@ -18,12 +18,13 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - run: mvn --batch-mode --update-snapshots verify
-      - run: mkdir staging && cp target/*.jar staging
+      - run: mvn clean install
+      - run: mkdir artifacts && cp target/*.jar artifacts
+      - run: cd artifacts && ls
       - uses: actions/upload-artifact@v3
         with:
           name: artifact
-          path: staging
+          path: artifacts
 
   deploy:
     needs: build
@@ -44,4 +45,4 @@ jobs:
           environment_name: Alledrogo-test-app-sit
           version_label: alledrogo-test-app-version-1.0.10
           region: eu-north-1
-          deployment_package: Alledrogo_Spring_Lab-0.0.1-SNAPSHOT.jar
+          deployment_package: DiceGameBE-0.0.1-SNAPSHOT.jar
