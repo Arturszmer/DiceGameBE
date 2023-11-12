@@ -4,7 +4,7 @@ name: Deploy spring code to aws elastic beanstalk
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
