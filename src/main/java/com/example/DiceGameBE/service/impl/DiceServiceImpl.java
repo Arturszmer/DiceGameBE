@@ -39,7 +39,7 @@ public class DiceServiceImpl implements DiceService {
 
              List<Dice> dices = message.getDices();
 
-             manageDicesFromRoll(dices, game);
+             roll(dices, game);
              game.setDices(dices);
              repository.save(game);
 
@@ -81,7 +81,7 @@ public class DiceServiceImpl implements DiceService {
          }
      }
 
-    private void manageDicesFromRoll(List<Dice> dices, Game game) {
+    private void roll(List<Dice> dices, Game game) {
         if(dices.isEmpty()){
             rollingAllDices(dices);
             checkPossibilityToNextRoll(dices, game);
@@ -108,8 +108,6 @@ public class DiceServiceImpl implements DiceService {
     }
 
      private void rollingPartOfTheDices(List<Dice> dices) {
-        // TODO: dodać filtry tak by pozostawić kostki zaznaczone ( i immutable), a rzucić wyłącznie pozostałymi koścmi
-         // TODO: jeżeli wszystkie są immutabe lub checked to powinien rzucić znowu wszystkimi kostkami
          if(dices.stream().filter(dice -> dice.isChecked() || dice.isImmutable()).toList().size() == 5){
              for (int i = 0; i < 5; i++) {
                  int value = random.nextInt(6) +1;
@@ -131,7 +129,6 @@ public class DiceServiceImpl implements DiceService {
      }
 
     private void setAttributes(List<Dice> dices) {
-         //TODO: przenieść do Utilsów i zwracać listę z zaktualizowanymi atrybutami
         List<Dice> dicesToManageAttributes = dices.stream().filter(dice -> !dice.isImmutable()).toList();
         Map<Integer, Integer> diceValueCounts = new HashMap<>();
         for (Dice dice : dicesToManageAttributes) {
