@@ -1,0 +1,49 @@
+# Workflow name
+name: Deploy spring code to aws elastic beanstalk
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - run: mvn clean install
+      - run: mkdir artifacts && cp target/*.jar artifacts
+      - run: cd artifacts && ls
+      - uses: actions/upload-artifact@v3
+        with:
+          name: artifact
+          path: artifacts
+
+  deploy:
+    needs: build
+    name: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Download JAR
+        uses: actions/download-artifact@v2
+        with:
+          name: artifact
+      # deploy the artifact (JAR) into AWS Beanstalk
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: dice-game
+          environment_name: Dice-game-test
+          version_label: dice-game-v0.0.3
+          region: eu-north-1
+          deployment_package: DiceGameBE-0.0.1-SNAPSHOT.jar
