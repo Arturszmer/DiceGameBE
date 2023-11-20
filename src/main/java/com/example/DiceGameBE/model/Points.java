@@ -11,22 +11,17 @@ import org.springframework.data.redis.core.RedisHash;
 @NoArgsConstructor
 public class Points {
 
-    private int allPoints = 0;
+    private int points = 0;
     private int temporaryPoints = 0;
     private int pointsFromRoll = 0;
 
     public void clear() {
-        this.allPoints = 0;
+        this.points = 0;
         this.temporaryPoints = 0;
         this.pointsFromRoll = 0;
     }
 
-    public void setTemporaryPoints(int temporaryPoints) {
-        this.temporaryPoints = temporaryPoints + allPoints;
-    }
-
-    public void managePointsBeforeNextRoll() {
-        this.allPoints = this.temporaryPoints;
-        this.temporaryPoints = 0;
+    public void managePointsBeforeNextRollByAllDices() {
+        this.temporaryPoints = points;
     }
 }

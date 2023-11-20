@@ -6,11 +6,12 @@ import java.util.List;
 
 public class DicesCalculator {
 
-    public static int count(List<Dice> dices) {
 
-        int totalPoints = 0;
+    public static int count(List<Dice> dices, int temporaryPoints) {
+
+        int totalPoints = temporaryPoints;
         List<Dice> checked = dices.stream()
-                .filter(dice -> dice.isGoodNumber() && dice.isChecked() && !dice.isImmutable())
+                .filter(dice -> dice.isGoodNumber() && dice.isChecked())
                 .toList();
 
         totalPoints += countMultiple(checked);

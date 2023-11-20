@@ -39,7 +39,6 @@ public class DiceServiceImpl implements DiceService {
                  return MessageMapper.errorMessage(GAME_ERROR_BAD_OWNER.getContent(owner));
              }
 
-             game.getPoints().managePointsBeforeNextRoll();
              List<Dice> dices = message.getDices();
 
              roll(dices, game);
@@ -71,7 +70,7 @@ public class DiceServiceImpl implements DiceService {
 
              game.setDices(dices);
              Points points = game.getPoints();
-             points.setTemporaryPoints(DicesCalculator.count(dices));
+             points.setPoints(DicesCalculator.count(dices, points.getTemporaryPoints()));
              repository.save(game);
 
              GameMessage gameMessage = gameToMessage(game);
@@ -91,7 +90,7 @@ public class DiceServiceImpl implements DiceService {
             rollingAllDices(dices);
             checkPossibilityToNextRoll(dices, game);
         } else {
-            rollingPartOfTheDices(dices);
+            rollingPartOfTheDices(dices, game.getPoints());
             checkPossibilityToNextRoll(dices, game);
         }
     }
@@ -112,12 +111,13 @@ public class DiceServiceImpl implements DiceService {
             setAttributes(dices);
     }
 
-     private void rollingPartOfTheDices(List<Dice> dices) {
+     private void rollingPartOfTheDices(List<Dice> dices, Points points) {
          if(dices.stream().filter(dice -> dice.isChecked() || dice.isImmutable()).toList().size() == 5){
              for (int i = 0; i < 5; i++) {
                  int value = random.nextInt(6) +1;
                  dices.get(i).insertNewValueFromRoll(value);
              }
+             points.managePointsBeforeNextRollByAllDices();
          } else {
              for (int i = 0; i < 5; i++) {
                  Dice dice = dices.get(i);

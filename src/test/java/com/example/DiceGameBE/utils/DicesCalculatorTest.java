@@ -22,7 +22,7 @@ class DicesCalculatorTest {
         List<Dice> checkedDices = UtilsTests.setCheckedAllDices(dices);
 
         // when
-        int pointsFromRoll = DicesCalculator.count(checkedDices);
+        int pointsFromRoll = DicesCalculator.count(checkedDices, 0);
 
         // then
         assertEquals(points, pointsFromRoll);

@@ -3,6 +3,7 @@ package com.example.DiceGameBE.service;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.model.Player;
+import com.example.DiceGameBE.model.Points;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ class GameBuilder {
     private GameStatus gameStatus;
     private List<Player> players = new ArrayList<>();
     private Player adminPlayer;
+    private Points points;
 
     public static GameBuilder aGameBuilder() {
         return new GameBuilder();
@@ -39,6 +41,11 @@ class GameBuilder {
         return this;
     }
 
+    public GameBuilder withPoints(Points points){
+        this.points = points;
+        return this;
+    }
+
     public Game build() {
         Game game = new Game();
         game.setGameId(gameId);
@@ -46,6 +53,7 @@ class GameBuilder {
         game.setAdminPlayer(adminPlayer);
         game.setStartGameTime(LocalDateTime.now());
         game.getPlayers().addAll(players);
+        game.setPoints(points);
         return game;
     }
 }
