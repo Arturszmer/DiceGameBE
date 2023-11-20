@@ -135,6 +135,7 @@ public class Game implements Serializable {
         this.gameStatus = GameStatus.STARTED;
         this.players.forEach(Player::restart);
         this.currentTurn = 0;
+        this.getCurrentPlayer().getValidations().setRolling(true);
         this.points = new Points();
         this.dices = new ArrayList<>();
     }
