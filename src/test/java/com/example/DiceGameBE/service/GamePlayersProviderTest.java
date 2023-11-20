@@ -128,6 +128,20 @@ public class GamePlayersProviderTest {
 
     }
 
+    @Test
+    public void should_generate_correct_link() {
+        // given
+        Game game = buildSimpleGame();
+        when(repository.findById(GAME_ID)).thenReturn(Optional.ofNullable(game));
+
+        // when
+        String link = playersProvider.generateLink(GAME_ID);
+
+        // then
+        assertTrue(link.contains(PATH_URL));
+
+    }
+
     private static Stream<Arguments> checkExceptionsForAddPlayerMethod(){
         return Stream.of(
                 Arguments.of(buildSimpleGame("player2", "player3"), new NewPlayerDto("ar"), GameException.class, OPEN),
