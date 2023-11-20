@@ -44,6 +44,6 @@ jobs:
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: dice-game
           environment_name: Dice-game-test
-          version_label: dice-game-v0.0.5
+          version_label: dice-game-v0.0.6
           region: eu-north-1
           deployment_package: DiceGameBE-0.0.1-SNAPSHOT.jar
