@@ -5,9 +5,11 @@ import com.example.DiceGameBE.dto.message.GameMessage;
 import com.example.DiceGameBE.dto.message.MessageMapper;
 import com.example.DiceGameBE.model.Dice;
 import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.model.Points;
 import com.example.DiceGameBE.model.Validations;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.DiceService;
+import com.example.DiceGameBE.utils.DicesCalculator;
 import com.example.DiceGameBE.utils.GameValidations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -67,6 +69,8 @@ public class DiceServiceImpl implements DiceService {
              checkPossibilityToNextRoll(dices, game);
 
              game.setDices(dices);
+             Points points = game.getPoints();
+             points.setPoints(DicesCalculator.count(dices, points.getTemporaryPoints()));
              repository.save(game);
 
              GameMessage gameMessage = gameToMessage(game);
@@ -86,7 +90,7 @@ public class DiceServiceImpl implements DiceService {
             rollingAllDices(dices);
             checkPossibilityToNextRoll(dices, game);
         } else {
-            rollingPartOfTheDices(dices);
+            rollingPartOfTheDices(dices, game.getPoints());
             checkPossibilityToNextRoll(dices, game);
         }
     }
@@ -107,12 +111,13 @@ public class DiceServiceImpl implements DiceService {
             setAttributes(dices);
     }
 
-     private void rollingPartOfTheDices(List<Dice> dices) {
+     private void rollingPartOfTheDices(List<Dice> dices, Points points) {
          if(dices.stream().filter(dice -> dice.isChecked() || dice.isImmutable()).toList().size() == 5){
              for (int i = 0; i < 5; i++) {
                  int value = random.nextInt(6) +1;
                  dices.get(i).insertNewValueFromRoll(value);
              }
+             points.managePointsBeforeNextRollByAllDices();
          } else {
              for (int i = 0; i < 5; i++) {
                  Dice dice = dices.get(i);

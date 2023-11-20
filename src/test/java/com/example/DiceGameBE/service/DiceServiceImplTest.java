@@ -2,10 +2,7 @@ package com.example.DiceGameBE.service;
 
 import com.example.DiceGameBE.dto.message.DiceMessage;
 import com.example.DiceGameBE.dto.message.GameMessage;
-import com.example.DiceGameBE.model.Dice;
-import com.example.DiceGameBE.model.Game;
-import com.example.DiceGameBE.model.GameStatus;
-import com.example.DiceGameBE.model.Player;
+import com.example.DiceGameBE.model.*;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.impl.DiceServiceImpl;
 import com.example.DiceGameBE.common.ErrorContents;
@@ -194,12 +191,72 @@ class DiceServiceImplTest {
         assertEquals(ErrorContents.GAME_ERROR_BAD_OWNER.getContent(GAME_OWNER), gameMessage.getContent());
     }
 
-    private void prepareSimpleGame(GameStatus status) {
+    @Test
+    public void should_count_temporary_points_after_roller_all_dices_second_time() {
+        // given
+        Game game = prepareSimpleGame(OPEN);
+
+        List<Dice> firstRoll = DiceModels.allFalseDices(1, 1, 5, 5, 5);
+        UtilsTests.setDicesAttributes(firstRoll);
+        List<Dice> checkedFirstRoll = UtilsTests.setCheckedAllDices(firstRoll); // 70 pkt
+
+        List<Dice> secondRoll = DiceModels.allFalseDices(1, 3, 3, 4, 6);
+        UtilsTests.setDicesAttributes(secondRoll);
+        List<Dice> checkedSecondRoll = UtilsTests.setCheckedAllDices(secondRoll); // 10 pkt
+
+        DiceMessage firstDiceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, checkedFirstRoll);
+        DiceMessage secondDiceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, checkedSecondRoll);
+
+        // when
+        diceService.checkDices(firstDiceMessage, GAME_OWNER);
+        game.getPoints().managePointsBeforeNextRollByAllDices();
+
+        GameMessage gameMessage = diceService.checkDices(secondDiceMessage, GAME_OWNER);
+
+        // then
+        assertEquals(80, gameMessage.getGame().getPoints().getPoints());
+    }
+
+    @Test
+    public void should_count_correctly_after_checked_before_next_roll() {
+        // given
+        prepareSimpleGame(OPEN);
+
+        List<Dice> firstRoll = DiceModels.allFalseDices(1, 5, 4, 3, 5);
+        UtilsTests.setDicesAttributes(firstRoll);
+
+        //FIRST REQUEST
+        firstRoll.get(0).setChecked(true);
+        firstRoll.get(1).setChecked(true);
+        DiceMessage firstDiceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, firstRoll);
+        GameMessage firstCheck = diceService.checkDices(firstDiceMessage, GAME_OWNER);
+
+        assertEquals(15, firstCheck.getGame().getPoints().getPoints());
+
+        //SECOND REQUEST
+        firstRoll.get(1).setChecked(false);
+        DiceMessage secondDiceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, firstRoll);
+        GameMessage secondCheck = diceService.checkDices(secondDiceMessage, GAME_OWNER);
+
+        assertEquals(10, secondCheck.getGame().getPoints().getPoints());
+
+        //THIRD REQUEST
+        firstRoll.get(1).setChecked(true);
+        firstRoll.get(4).setChecked(true);
+        DiceMessage thirdDiceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, firstRoll);
+        GameMessage thirdCheck = diceService.checkDices(thirdDiceMessage, GAME_OWNER);
+
+        assertEquals(20, thirdCheck.getGame().getPoints().getPoints());
+    }
+
+    private Game prepareSimpleGame(GameStatus status) {
         Game game = GameBuilder.aGameBuilder()
                 .withPlayers(List.of(new Player(0, GAME_OWNER)))
                 .withGameStatus(status)
+                .withPoints(new Points())
                 .build();
         when(gameRepositoryMock.findById(any())).thenReturn(Optional.of(game));
+        return game;
     }
 
     private static List<Dice> getDices(List<Dice> restDices) {
