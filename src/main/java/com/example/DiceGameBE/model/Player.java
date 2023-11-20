@@ -24,4 +24,13 @@ public class Player implements Serializable {
                 false,
                 id == 0, false, false);
     }
+
+    public void savePoints(int points){
+        this.points += points;
+    }
+
+    public void restart() {
+        this.points = 0;
+        this.validations.setAllFalse();
+    }
 }

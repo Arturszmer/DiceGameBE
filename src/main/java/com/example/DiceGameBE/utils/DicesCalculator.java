@@ -23,6 +23,21 @@ public class DicesCalculator {
         return totalPoints;
     }
 
+    public static int countPointsFromRoll(List<Dice> dices, int temporaryPoints){
+
+        int totalPoints = temporaryPoints;
+        List<Dice> toCount = dices.stream()
+                .filter(Dice::isGoodNumber)
+                .toList();
+
+        totalPoints += countMultiple(toCount);
+
+        for(Dice dice : toCount.stream().filter(dice -> !dice.isMultiple()).toList()){
+            totalPoints += countPoints(dice.getValue());
+        }
+        return totalPoints;
+    }
+
     private static int countPoints(int dice) {
         return switch (dice) {
             case 1 -> 10;
@@ -30,7 +45,6 @@ public class DicesCalculator {
             default -> 0;
         };
     }
-
     private static int countMultiple(List<Dice> dices) {
         List<Dice> multiples = dices.stream().filter(Dice::isMultiple).toList();
         int numberOfMultiples = multiples.size();

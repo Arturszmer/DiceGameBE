@@ -4,7 +4,10 @@ public enum GameplayContents implements MessageContents{
 
     NEXT_PLAYER("Next player is: %s"),
     DISCONNECT("%s disconnected this game"),
-    CONNECT("New player is connected: %s");
+    DISCONNECT_AND_CLOSE("The last player leaved this game, the game is finished by default"),
+    CONNECT("New player is connected: %s"),
+
+    WINNER("And the winner is: %s");
 
     private final String content;
 

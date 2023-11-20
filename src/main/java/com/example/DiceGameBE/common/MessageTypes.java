@@ -14,7 +14,9 @@ public enum MessageTypes {
     GAME_ROLL("game.roll"),
     GAME_CHECK("game.check"),
     GAME_CLOSED("game.closed"),
-    GAME_TURN_CHANGED("game.turn-changed");
+    GAME_SAVE("game.saved"),
+    GAME_TURN_CHANGED("game.turn-changed"),
+    GAME_WINNER("game.winner");
 
     private final String type;
 

@@ -8,12 +8,16 @@ import com.example.DiceGameBE.service.impl.DiceServiceImpl;
 import com.example.DiceGameBE.common.ErrorContents;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.example.DiceGameBE.model.GameStatus.FINISHED;
 import static com.example.DiceGameBE.model.GameStatus.OPEN;
@@ -121,7 +125,7 @@ class DiceServiceImplTest {
     public void should_roll_all_dices_when_all_values_is_good_number_and_checked_or_immutable() {
 
         // given
-        List<Dice> dices = getDices(getMultipleDicesByValue(3, true));
+        List<Dice> dices = getDices(getMultipleDicesByValue());
         DiceMessage diceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, dices);
         prepareSimpleGame(OPEN);
 
@@ -249,6 +253,28 @@ class DiceServiceImplTest {
         assertEquals(20, thirdCheck.getGame().getPoints().getPoints());
     }
 
+    @ParameterizedTest
+    @MethodSource("rollsToSave")
+    public void should_save_button_will_be_available_when_number_of_points_is_enough(
+            List<Dice> fromRoll, int playerPoints, boolean isSaved
+    ) {
+        // given
+        Game game = prepareSimpleGame(OPEN);
+        game.getCurrentPlayer().setPoints(playerPoints);
+
+        UtilsTests.setDicesAttributes(fromRoll);
+        UtilsTests.setCheckedAllDices(fromRoll);
+
+        DiceMessage diceMessage = new DiceMessage(GAME_ROLL.getType(), "", GAME_ID, fromRoll);
+
+        // when
+        GameMessage gameMessage = diceService.checkDices(diceMessage, GAME_OWNER);
+
+        // then
+        assertEquals(isSaved, gameMessage.getGame().getCurrentPlayer().getValidations().isSaved());
+
+    }
+
     private Game prepareSimpleGame(GameStatus status) {
         Game game = GameBuilder.aGameBuilder()
                 .withPlayers(List.of(new Player(0, GAME_OWNER)))
@@ -275,24 +301,25 @@ class DiceServiceImplTest {
         return dices;
     }
 
-    private static List<Dice> getMultipleDicesByValue(int value, boolean isImmutable){
+    private static List<Dice> getMultipleDicesByValue(){
         List<Dice> dices = new ArrayList<>();
         for(int i = 0; i < 3; i++){
-            if(isImmutable) {
-                dices.add(aDiceBuilder()
-                        .withValue(value)
-                        .withGoodNumber()
-                        .withChecked()
-                        .withImmutable()
-                        .build());
-            } else {
-                dices.add(aDiceBuilder()
-                        .withValue(value)
-                        .withGoodNumber()
-                        .withChecked()
-                        .build());
-            }
+            dices.add(aDiceBuilder()
+                    .withValue(3)
+                    .withGoodNumber()
+                    .withChecked()
+                    .withImmutable()
+                    .build());
         }
         return dices;
+    }
+
+    private static Stream<Arguments> rollsToSave(){
+        return Stream.of(
+                Arguments.of(DiceModels.allFalseDices(1, 1, 1, 3, 3), 0, true),
+                Arguments.of(DiceModels.allFalseDices(1, 1, 5, 3, 3), 0, false),
+                Arguments.of(DiceModels.allFalseDices(1, 1, 5, 3, 3), 100, true),
+                Arguments.of(DiceModels.allFalseDices(1, 2, 5, 3, 3), 100, false)
+        );
     }
 }

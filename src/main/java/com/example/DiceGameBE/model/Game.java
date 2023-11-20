@@ -100,15 +100,26 @@ public class Game implements Serializable {
                 .orElseThrow(() -> new GameException(PLAYER_DOES_NOT_EXIST, playerName));
     }
 
-    public void inactivePlayerByName(String toInactivePlayerName) {
+    public boolean inactivePlayerByName(String toInactivePlayerName) {
         Player currentPlayer = getCurrentPlayer();
         if(currentPlayer != null && currentPlayer.getName().equals(toInactivePlayerName)){
             currentPlayer.setActive(false);
             currentPlayer.getValidations().setAllFalse();
             dices.clear();
+            if(this.players.stream()
+                    .filter(Player::isActive)
+                    .toList()
+                    .isEmpty()){
+                return true;
+            }
             nextTurn();
+            return false;
         } else {
             getPlayerByName(toInactivePlayerName).setActive(false);
+            return this.players.stream()
+                    .filter(Player::isActive)
+                    .toList()
+                    .isEmpty();
         }
     }
 
@@ -118,5 +129,13 @@ public class Game implements Serializable {
         } else {
             return invitationToken;
         }
+    }
+
+    public void restart() {
+        this.gameStatus = GameStatus.STARTED;
+        this.players.forEach(Player::restart);
+        this.currentTurn = 0;
+        this.points = new Points();
+        this.dices = new ArrayList<>();
     }
 }
