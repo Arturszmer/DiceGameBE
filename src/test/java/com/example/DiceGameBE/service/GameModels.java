@@ -4,6 +4,7 @@ import com.example.DiceGameBE.dto.AdminPlayerDto;
 import com.example.DiceGameBE.model.Game;
 import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.model.Player;
+import com.example.DiceGameBE.model.Points;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +36,7 @@ class GameModels {
                 .withGameStatus(GameStatus.OPEN)
                 .withAdminPlayer(createAdminPlayer())
                 .withPlayers(List.of(createAdminPlayer()))
+                .withPoints(new Points())
                 .build();
 
         for (String s : players) {
