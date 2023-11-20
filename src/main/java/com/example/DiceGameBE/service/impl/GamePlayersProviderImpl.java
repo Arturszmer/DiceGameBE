@@ -5,6 +5,7 @@ import com.example.DiceGameBE.dto.message.*;
 import com.example.DiceGameBE.exceptions.GameErrorResult;
 import com.example.DiceGameBE.exceptions.GameException;
 import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.model.GameStatus;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.GamePlayersProvider;
 import com.example.DiceGameBE.common.GameplayContents;
@@ -50,13 +51,22 @@ public class GamePlayersProviderImpl implements GamePlayersProvider {
         Optional<Game> gameOpt = repository.findById(message.getGameId());
         if(gameOpt.isPresent()){
             Game game = gameOpt.get();
-            game.inactivePlayerByName(playerName);
+            boolean isAllPlayersInactive = game.inactivePlayerByName(playerName);
 
-            repository.save(game);
+            if(isAllPlayersInactive){
+                game.setGameStatus(GameStatus.FINISHED);
+                repository.save(game);
 
-            return MessageMapper.gameToMessage(game,
-                    GameplayContents.DISCONNECT.getContent(playerName),
-                    GAME_LEAVE);
+                return MessageMapper.gameToMessage(game,
+                        GameplayContents.DISCONNECT_AND_CLOSE.getContent(playerName),
+                        GAME_LEAVE);
+            } else {
+                repository.save(game);
+
+                return MessageMapper.gameToMessage(game,
+                        GameplayContents.DISCONNECT.getContent(playerName),
+                        GAME_LEAVE);
+            }
         } else {
             return MessageMapper.errorMessage(GAME_ERROR_NOT_FOUND_OR_FINISHED.getContent(message.getGameId()));
         }

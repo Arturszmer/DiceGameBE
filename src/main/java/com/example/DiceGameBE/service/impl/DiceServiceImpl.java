@@ -5,11 +5,11 @@ import com.example.DiceGameBE.dto.message.GameMessage;
 import com.example.DiceGameBE.dto.message.MessageMapper;
 import com.example.DiceGameBE.model.Dice;
 import com.example.DiceGameBE.model.Game;
+import com.example.DiceGameBE.model.Player;
 import com.example.DiceGameBE.model.Points;
 import com.example.DiceGameBE.model.Validations;
 import com.example.DiceGameBE.repository.GameRepository;
 import com.example.DiceGameBE.service.DiceService;
-import com.example.DiceGameBE.utils.DicesCalculator;
 import com.example.DiceGameBE.utils.GameValidations;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,8 +19,10 @@ import static com.example.DiceGameBE.common.ErrorContents.GAME_ERROR_BAD_OWNER;
 import static com.example.DiceGameBE.common.ErrorContents.GAME_ERROR_NOT_FOUND_OR_FINISHED;
 import static com.example.DiceGameBE.common.MessageTypes.*;
 import static com.example.DiceGameBE.dto.message.MessageMapper.*;
+import static com.example.DiceGameBE.utils.DicesCalculator.count;
+import static com.example.DiceGameBE.utils.DicesCalculator.countPointsFromRoll;
 
-@Service
+ @Service
 @RequiredArgsConstructor
 public class DiceServiceImpl implements DiceService {
 
@@ -43,6 +45,7 @@ public class DiceServiceImpl implements DiceService {
 
              roll(dices, game);
              game.setDices(dices);
+
              repository.save(game);
 
              return gameToMessage(game, GAME_ROLL);
@@ -52,8 +55,7 @@ public class DiceServiceImpl implements DiceService {
      }
 
 
-
-    @Override
+     @Override
      public GameMessage checkDices(DiceMessage message, String owner) {
          Optional<Game> gameOpt = repository.findById(message.getGameId());
          if(gameOpt.isPresent() && GameValidations.gameStatusValid(gameOpt.get())){
@@ -66,11 +68,13 @@ public class DiceServiceImpl implements DiceService {
 
              List<Dice> dices = message.getDices();
 
-             checkPossibilityToNextRoll(dices, game);
 
              game.setDices(dices);
              Points points = game.getPoints();
-             points.setPoints(DicesCalculator.count(dices, points.getTemporaryPoints()));
+             points.setPoints(count(dices, points.getTemporaryPoints()));
+
+             checkPossibilityToNextRoll(dices, game);
+
              repository.save(game);
 
              GameMessage gameMessage = gameToMessage(game);
@@ -93,15 +97,47 @@ public class DiceServiceImpl implements DiceService {
             rollingPartOfTheDices(dices, game.getPoints());
             checkPossibilityToNextRoll(dices, game);
         }
+        checkWinnerStatus(dices, game);
     }
+
+     private static void checkWinnerStatus(List<Dice> dices, Game game) {
+         Validations validations = game.getCurrentPlayer().getValidations();
+         int pointsFromRoll = countPointsFromRoll(dices, game.getPoints().getTemporaryPoints());
+
+         if(pointsFromRoll + game.getCurrentPlayer().getPoints() == 1000){
+             validations.setAllFalse();
+             validations.setWinner(true);
+
+         }
+         if(pointsFromRoll + game.getCurrentPlayer().getPoints() > 1000){
+             validations.setAllFalse();
+             validations.setNextPlayer(true);
+         }
+     }
 
      private void checkPossibilityToNextRoll(List<Dice> dices, Game game) {
 
          Validations validations = game.getCurrentPlayer().getValidations();
          boolean canRoll = !dices.stream().filter(dice -> dice.isGoodNumber() && !dice.isImmutable()).toList().isEmpty();
-         validations.setRolling(canRoll);
+         boolean beChecked = !dices.stream().filter(dice -> dice.isChecked() && !dice.isImmutable()).toList().isEmpty();
+
          validations.setNextPlayer(!canRoll);
+         itCanBeSaved(game.getPoints(), game.getCurrentPlayer(), canRoll && beChecked);
      }
+
+    private void itCanBeSaved(Points points, Player currentPlayer, boolean canRoll) {
+        Validations playerValidations = currentPlayer.getValidations();
+        if(!playerValidations.isNextPlayer()){
+            playerValidations.setRolling(canRoll);
+            int totalPoints = points.getPoints();
+            playerValidations.setSaved(currentPlayer.getPoints() < 100
+                    ? totalPoints >= 100
+                    : totalPoints >= 25);
+        } else {
+            playerValidations.setSaved(false);
+            playerValidations.setRolling(canRoll);
+        }
+    }
 
      private void rollingAllDices(List<Dice> dices) {
             for (int i = 0; i < 5; i++) {

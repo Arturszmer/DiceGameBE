@@ -80,4 +80,16 @@ public class WsGameplayController {
         this.simpMessagingTemplate.convertAndSend(DESTINATION_CONST + gameMessage.getGameId(), gameMessage);
     }
 
+    @MessageMapping("/game.save-points")
+    public void savePoints(@Payload SimpMessage message){
+        GameMessage gameMessage = gameplayService.savePoints(message);
+        this.simpMessagingTemplate.convertAndSend(DESTINATION_CONST + gameMessage.getGameId(), gameMessage);
+    }
+
+    @MessageMapping("/game.win")
+    public void winGame(@Payload WinnerMessage message){
+        GameMessage gameMessage = gameplayService.winGame(message);
+        this.simpMessagingTemplate.convertAndSend(DESTINATION_CONST + gameMessage.getGameId(), gameMessage);
+    }
+
 }
